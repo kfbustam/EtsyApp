@@ -1,29 +1,28 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { userLogoutRequest as userLogoutRequestAction } from './store/actions/userAction';
+import { userLogoutRequest as userLogoutRequestAction } from '../store/actions/userAction';
+import NavBar from './NavBar';
+import CategoryBar from './CategoryBar';
 
 const headerButtonStyle = {
   display: 'flex',
-  justifyContent: 'space-between',
-  marginTop: 20,
+  flexDirection: 'column',
 };
 
 
 // eslint-disable-next-line react/prefer-stateless-function
 class Header extends Component {
   render() {
-    const onLogoutClicked = () => {
-      const { userLogoutRequest } = this.props;
-      userLogoutRequest();
-    };
+    // const onLogoutClicked = () => {
+    //   const { userLogoutRequest } = this.props;
+    //   userLogoutRequest();
+    // };
 
     return (
       <div style={headerButtonStyle}>
-        <h3>Book Store App</h3>
-        <div>
-          <button type="submit" className="btn btn-primary" onClick={onLogoutClicked}>Logout</button>
-        </div>
+        <NavBar />
+        <CategoryBar />
       </div>
     );
   }

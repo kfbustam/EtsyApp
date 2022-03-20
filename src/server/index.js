@@ -35,24 +35,43 @@ app.use(
 );
 
 // Only user allowed is admin
-const Users = [
-  {
+const Users = {
+  1: {
+    id: 1,
     username: 'admin',
     password: 'admin',
+    region: 'United States',
+    currency: 'USD',
+    language: 'English',
   },
-];
-// By Default we have 3 books
-const books = {
-  1: { Title: 'Book 1', Author: 'Author 1' },
-  2: { Title: 'Book 2', Author: 'Author 2' },
-  3: { Title: 'Book 3', Author: 'Author 3' },
+};
+
+const items = {
+  1: {
+    id: 1, src: 'https://placekitten.com/258/205', isFavorited: true, name: 'The kitten 1', price: 120.00
+  },
+  2: {
+    id: 2, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 2', price: 120.00
+  },
+  3: {
+    id: 3, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 3', price: 120.00
+  },
+  4: {
+    id: 4, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 4', price: 120.00
+  },
+  5: {
+    id: 5, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 5', price: 120.00
+  },
+  6: {
+    id: 6, src: 'https://placekitten.com/258/205', isFavorited: true, name: 'The kitten 6', price: 120.00
+  },
 };
 
 let errorMessages = {};
 let messages = {};
 
-app.get('/getBooks', (req, res) => {
-  res.send({ books });
+app.get('/items', (req, res) => {
+  res.send({ items: Object.values(items) });
 });
 
 app.post('/signup', (req, res) => {
@@ -64,7 +83,7 @@ app.post('/signup', (req, res) => {
     });
   } else {
     console.log('Req Body : ', req.body);
-    const userThatMatches = Users.filter(user => user.username === req.body.username);
+    const userThatMatches = Object.values(Users).filter(user => user.username === req.body.username);
     if (
       userThatMatches.length === 1
     ) {
@@ -76,7 +95,7 @@ app.post('/signup', (req, res) => {
     } else {
       errorMessages = {};
       messages.VALID_DELETED_BOOK = 'You have successfully signed up!';
-      Users.push({ username: req.body.username, password: req.body.password });
+      Object.values(Users).push({ username: req.body.username, password: req.body.password });
       res.send({ messages, errorMessages });
     }
   }
@@ -91,7 +110,7 @@ app.post('/login', (req, res) => {
     });
   } else {
     console.log('Req Body : ', req.body);
-    const userThatMatches = Users.filter(user => user.username === req.body.username
+    const userThatMatches = Object.values(Users).filter(user => user.username === req.body.username
     && user.password === req.body.password);
     if (
       userThatMatches.length === 1
@@ -123,51 +142,63 @@ app.post('/logout', (req, res) => {
   res.redirect('/');
 });
 
-app.post('/createBook', (req, res) => {
+app.post('/favoriteItem', (req, res) => {
   if (
     req.body
-    && req.body.bookID
-    && req.body.bookTitle
-    && req.body.bookAuthor
+    && req.body.itemID
   ) {
-    const reqBody = req.body;
-    if (reqBody.bookID) {
-      if (books[reqBody.bookID]) {
-        errorMessages = {};
-        errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Book could not be created because the Book ID: "${
-          reqBody.bookID
-        }" already exists`;
-        res.send({ errorMessages }, 400);
-      } else {
-        books[reqBody.bookID] = {
-          Title: req.body.bookTitle,
-          Author: req.body.bookAuthor,
-        };
-        messages = {};
-        messages.VALID_CREATED_BOOK = `Book with ID: ${reqBody.bookID} created!`;
-        res.send({ messages }, 200);
-      }
+    const { itemID } = req.body;
+    if (items[itemID]) {
+      items[itemID].isFavorited = true;
+      res.send({ items: Object.values(items) }, 200);
+    } else {
+      errorMessages = {};
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
+        itemID
+      }" does not exist`;
+      res.send({ errorMessages }, 200);
     }
   }
 });
 
-app.post('/deleteBook', (req, res) => {
-  console.log(req.body);
-  if (req.body && req.body.bookID) {
-    const reqBody = req.body;
-    if (reqBody.bookID) {
-      if (books[reqBody.bookID]) {
-        delete books[reqBody.bookID];
-        messages = {};
-        messages.VALID_DELETED_BOOK = `Book with ID: ${reqBody.bookID} deleted.`;
-        res.send({ books, messages }, 200);
-      } else {
-        errorMessages = {};
-        errorMessages.INVALID_DELETE_BOOK_ID_NOT_FOUND = `Book could not be deleted because the Book ID: "${
-          reqBody.bookID
-        }" could not be found`;
-        res.send({ errorMessages }, 400);
-      }
+app.post('/unFavoriteItem', (req, res) => {
+  if (
+    req.body
+    && req.body.itemID
+  ) {
+    const { itemID } = req.body;
+    if (items[itemID]) {
+      items[itemID].isFavorited = false;
+      res.send({ items: Object.values(items) }, 200);
+    } else {
+      errorMessages = {};
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
+        itemID
+      }" does not exist`;
+      res.send({ errorMessages }, 200);
+    }
+  }
+});
+
+app.post('/updateUserInfo', (req, res) => {
+  if (
+    req.body
+    && req.session.user
+  ) {
+    const { userInfo } = req.body;
+    const { id } = req.session.user;
+    if (Users[id]) {
+      Users[id] = {
+        ...Users[id],
+        ...userInfo
+      };
+      res.send({ userInfo }, 200);
+    } else {
+      errorMessages = {};
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `User with username: "${
+        userInfo.username
+      }" has issues`;
+      res.send({ errorMessages }, 200);
     }
   }
 });

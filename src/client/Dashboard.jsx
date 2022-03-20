@@ -2,28 +2,30 @@ import React, { Component } from 'react';
 import SSRProvider from 'react-bootstrap/SSRProvider';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import UserSettingsModal from './UserSettingsModal';
 import Home from './Home';
 import Login from './Login';
+import Profile from './Profile';
+import Favorite from './Favorites';
+import SellOnEtsy from './SellOnEtsy';
+import ShopHome from './ShopHome';
+import Cart from './Cart';
+import MyPurchases from './Purchase';
+import ShoppingItemOverview from './ShoppingItemOverview';
 import SignUp from './SignUp';
-import TabGroup from './TabGroup';
-import Create from './Create';
-import Delete from './Delete';
-import Header from './Header';
+import SearchLanding from './SearchLanding';
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeTab: 'home',
       isOnSignUpPage: false,
     };
   }
 
   render() {
-    const { activeTab, isOnSignUpPage, messages } = this.state;
-    const onTabClicked = (newActiveTab) => {
-      this.setState({ activeTab: newActiveTab });
-    };
+    const { pageView } = this.props;
+    const { isOnSignUpPage, messages } = this.state;
     const onMessageUpdated = (newMessages) => {
       this.setState({ messages: newMessages });
     };
@@ -31,31 +33,67 @@ class Dashboard extends Component {
       this.setState({ isOnSignUpPage: isOnSignUpPageFlag });
     };
     const { isAuthenticated } = this.props;
-    const authComponent = (isOnSignUpPage
-      ? <SignUp onMessageUpdated={onMessageUpdated} onSignUpButtonClicked={onSignUpButtonClicked} />
-      : <Login messages={messages} onSignUpButtonClicked={onSignUpButtonClicked} />);
+    const authComponent = isOnSignUpPage ? (
+      <SignUp
+        onMessageUpdated={onMessageUpdated}
+        onSignUpButtonClicked={onSignUpButtonClicked}
+      />
+    ) : (
+      <Login
+        messages={messages}
+        onSignUpButtonClicked={onSignUpButtonClicked}
+      />
+    );
     let defaultComponent;
-    switch (activeTab) {
-      case 'create':
-        defaultComponent = <Create onMessageUpdated={onMessageUpdated} onTabClicked={onTabClicked} />;
+    switch (pageView) {
+      case 'SEARCH_LANDING':
+        defaultComponent = (
+          <SearchLanding />
+        );
         break;
-      case 'delete':
-        defaultComponent = <Delete onMessageUpdated={onMessageUpdated} onTabClicked={onTabClicked} />;
+      case 'PROFILE':
+        defaultComponent = (
+          <Profile />
+        );
+        break;
+      case 'FAVORITES':
+        defaultComponent = (
+          <Favorite />
+        );
+        break;
+      case 'SELL_ON_ETSY':
+        defaultComponent = (
+          <SellOnEtsy />
+        );
+        break;
+      case 'SHOP_HOME':
+        defaultComponent = (
+          <ShopHome />
+        );
+        break;
+      case 'CART':
+        defaultComponent = (
+          <Cart />
+        );
+        break;
+      case 'MY_PURCHASES':
+        defaultComponent = (
+          <MyPurchases />
+        );
+        break;
+      case 'SHOPPING_ITEM_OVERVIEW':
+        defaultComponent = (
+          <ShoppingItemOverview />
+        );
         break;
       default:
-        defaultComponent = <Home messages={messages} />;
+        defaultComponent = <Home />;
         break;
     }
     return (
       <SSRProvider>
-        <div className="container">
-          {isAuthenticated && <Header />}
-          {isAuthenticated && <TabGroup activeTab={activeTab} onTabClicked={onTabClicked} />}
-        </div>
-        { isAuthenticated
-          ? defaultComponent
-          : authComponent
-        }
+        {isAuthenticated ? defaultComponent : authComponent}
+        <UserSettingsModal />
       </SSRProvider>
     );
   }
@@ -63,14 +101,20 @@ class Dashboard extends Component {
 
 const mapStateToProps = state => ({
   isAuthenticated: state.users.isAuthenticated,
+  pageView: state.pages.pageView,
+});
+
+const mapDispatchToProps = dispatch => ({
 });
 
 Dashboard.defaultProps = {
   isAuthenticated: PropTypes.bool,
+  pageView: PropTypes.string,
 };
 
 Dashboard.propTypes = {
   isAuthenticated: PropTypes.bool,
+  pageView: PropTypes.string,
 };
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

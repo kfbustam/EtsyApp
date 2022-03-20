@@ -1,76 +1,198 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { queryBooks } from './store/actions/bookAction';
+import {
+  Heart,
+  HeartFill
+} from 'react-bootstrap-icons';
+import { connect } from 'react-redux';
+import Footer from './Footer';
+import Header from './nav/Header';
+import {
+  addItemToFavorites as addItemToFavoritesAction,
+  hydrateShoppingItems as hydrateShoppingItemsAction,
+  removeItemFromFavorites as removeItemFromFavoritesAction
+} from './store/actions/itemAction';
+import { changePageView as changePageViewAction } from './store/actions/pageAction';
+import { PAGES } from './store/actions/actionTypes';
 
-const successMessageStyle = {
-  color: 'green'
+const itemsContainerStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',
 };
 
+const favoriteItemImgContainerStyle = {
+  position: 'relative',
+  margin: '10px 10px 10px 10px'
+};
+
+const favoriteItemImgStyle = {
+  position: 'relative',
+  paddingLeft: 30
+};
+
+const heartIconStyle = {
+  position: 'absolute',
+  top: 16,
+  right: 10,
+  width: 10,
+  height: 10,
+};
+
+const pricePillStyle = {
+  position: 'absolute',
+  left: 30,
+  width: 10,
+  height: 10,
+};
+
+
+const recentActivityRowStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  paddingBottom: 10,
+  paddingTop: 10,
+  width: '100%'
+};
+
+const welcomeBackStyle = {
+  margin: '0 auto',
+  paddingBottom: 10,
+  paddingTop: 10,
+  width: 'fit-content'
+};
+
+const itemCardContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column'
+};
+
+const itemCardButtonContainerStyle = {
+  width: '258px',
+  height: '200px',
+  position: 'absolute',
+  marginLeft: 40,
+  marginTop: 40,
+  zIndex: 10
+};
+
+const itemCardDescriptionStyle = {
+  left: 30,
+  paddingLeft: 40,
+  paddingTop: 10
+};
+
+const rootStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  justifyContent: 'space-between'
+};
+
+const options = data => ({
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  method: 'GET',
+  body: JSON.stringify(data)
+});
 class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      books: [],
     };
   }
 
   componentDidMount() {
-    queryBooks().then((res) => {
-      res.json().then((resp) => {
-        this.setState({ books: resp.books });
-      });
-    });
+    const {
+      hydrateShoppingItems,
+      items
+    } = this.props;
+    if (items.length === 0) {
+      hydrateShoppingItems();
+    }
   }
 
+  onItemClick = () => {
+    const {
+      changePageView
+    } = this.props;
+    changePageView(PAGES.SHOPPING_ITEM_OVERVIEW);
+  };
 
   render() {
-    const { messages } = this.props;
-    const { books } = this.state;
-    const msgElem = messages != null
-      && Object.keys(messages).map(
-        messageKey => <p style={successMessageStyle}>{messages[messageKey]}</p>
-      );
+    const {
+      addItemToFavorites, removeItemFromFavorites, items, user
+    } = this.props;
+    const { username } = user;
     return (
-      <>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" />
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
-        <div className="container">
-          <h2>List of All Books</h2>
-          {
-            msgElem
+      <div style={rootStyle}>
+        <div>
+          <Header />
+          <div style={welcomeBackStyle}>
+            Welcome back,
+            {' '}
+            {username}
+            !
+          </div>
+          <div style={recentActivityRowStyle}>
+            <div>Your recent activity</div>
+            <div>Recently favorited and viewed items</div>
+          </div>
+          <div style={itemsContainerStyle}>
+            { items.map(item => (
+              <div style={itemCardContainerStyle} key={item.name}>
+                <div style={itemCardButtonContainerStyle} onClick={this.onItemClick} onKeyPress={this.onItemClick} role="button" tabIndex="-1" />
+                <div style={favoriteItemImgContainerStyle}>
+                  <img style={favoriteItemImgStyle} src={item.src} alt="Logo" />
+                  <div style={pricePillStyle}>{`$${item.price}`}</div>
+                  {
+                    item.isFavorited
+                      ? <HeartFill style={heartIconStyle} onClick={() => removeItemFromFavorites(item.id)} onKeyPress={() => removeItemFromFavorites(item.id)} role="button" tabIndex="-1" /> : <Heart style={heartIconStyle} onClick={() => addItemToFavorites(item.id)} onKeyPress={() => addItemToFavorites(item.id)} role="button" tabIndex="-1" />
+                  }
+                </div>
+                <div style={itemCardDescriptionStyle}>{`${item.name}`}</div>
+              </div>
+            ))
           }
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Book ID</th>
-                <th>Title</th>
-                <th>Author</th>
-              </tr>
-            </thead>
-            <tbody>
-              {books != null && Object.keys(books).map(book => (
-                <tr key={`bookRow_${books[book].Title}`}>
-                  <td>{book}</td>
-                  <td>{books[book].Title}</td>
-                  <td>{books[book].Author}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          </div>
         </div>
-      </>
+        <Footer />
+      </div>
     );
   }
 }
 
 Home.defaultProps = {
-  messages: PropTypes.array
+  addItemToFavorites: PropTypes.func,
+  changePageView: PropTypes.func,
+  hydrateShoppingItems: PropTypes.func,
+  items: PropTypes.array,
+  removeItemFromFavorites: PropTypes.func,
+  user: PropTypes.object,
 };
 
 Home.propTypes = {
+  addItemToFavorites: PropTypes.func,
+  changePageView: PropTypes.func,
+  hydrateShoppingItems: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
-  messages: PropTypes.array
+  items: PropTypes.array,
+  removeItemFromFavorites: PropTypes.func,
+  // eslint-disable-next-line react/forbid-prop-types
+  user: PropTypes.object,
 };
 
-export default Home;
+const mapStateToProps = state => ({
+  items: state.items.items,
+  user: state.users.user,
+});
+
+const mapDispatchToProps = dispatch => ({
+  addItemToFavorites: itemID => dispatch(addItemToFavoritesAction(itemID)),
+  changePageView: page => dispatch(changePageViewAction(page)),
+  hydrateShoppingItems: () => dispatch(hydrateShoppingItemsAction()),
+  removeItemFromFavorites: itemID => dispatch(removeItemFromFavoritesAction(itemID)),
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

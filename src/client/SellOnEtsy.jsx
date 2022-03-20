@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import AvailabileIcon from './icons/AvailableIcon';
 
 const createFormControlStyle = {
   background: '#f7f7f7 none repeat scroll 0 0',
@@ -15,11 +16,32 @@ const createFormGroupStyle = {
   marginBottom: 10,
 };
 
+const searchInputContainerStyle = {
+  position: 'relative',
+  padding: 0,
+  margin: 0,
+  width: '80%'
+};
+
+const searchInputStyle = {
+  position: 'relative',
+  paddingLeft: 30
+};
+
+const searchIconStyle = {
+  position: 'absolute',
+  bottom: 16,
+  right: 10,
+  width: 10,
+  height: 10,
+};
+
+
 const errorMessageStyle = {
   color: 'red'
 };
 
-class Create extends Component {
+class SellOnEtsy extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -62,9 +84,6 @@ class Create extends Component {
     };
     return (
       <>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" />
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
         {
           errorMessages != null
           && Object.keys(errorMessages).map(
@@ -72,31 +91,30 @@ class Create extends Component {
           )
         }
         <div className="container">
-          <h2>Create a Book</h2>
-          <div style={createFormGroupStyle}>
-            <input type="text" style={createFormControlStyle} name="bookID" onChange={onBookIDInputChange} placeholder="Book ID" pattern="[A-Za-z0-9]+" required />
+          <h2>Name your shop</h2>
+          <h2>Choose a memorable name that reflects your style.</h2>
+          <div style={searchInputContainerStyle}>
+            <input className="form-control" type="text" placeholder="Type the name of your shop" aria-label="Search" onChange={this.onSearchInputChange} style={searchInputStyle} />
+            <AvailabileIcon style={searchIconStyle} />
+            <div>Check availability</div>
           </div>
-          <div style={createFormGroupStyle}>
-            <input type="text" style={createFormControlStyle} name="bookTitle" onChange={onBookAuthorTitleInputChange} placeholder="Title" required />
+          <div>
+            Your shop name will appear in your shop and next to each of your listings throughout Etsy. After you open your shop, you can change your name once.
           </div>
-          <div style={createFormGroupStyle}>
-            <input type="text" style={createFormControlStyle} name="bookAuthor" onChange={onBookAuthorNameInputChange} placeholder="Author" required />
-          </div>
-          <button type="submit" className="btn btn-primary" onClick={onSubmit}>Submit</button>
         </div>
       </>
     );
   }
 }
 
-Create.defaultProps = {
+SellOnEtsy.defaultProps = {
   onMessageUpdated: PropTypes.func,
   onTabClicked: PropTypes.func,
 };
 
-Create.propTypes = {
+SellOnEtsy.propTypes = {
   onMessageUpdated: PropTypes.func,
   onTabClicked: PropTypes.func,
 };
 
-export default Create;
+export default SellOnEtsy;

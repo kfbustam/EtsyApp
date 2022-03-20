@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import * as actionTypes from './actionTypes';
+import { LOGIN_SUCCESSFUL, LOGOUT_USER, UPDATE_USER_INFO } from './actionTypes';
 
 const URL = 'http://localhost:8080';
 const options = data => ({
@@ -9,6 +9,22 @@ const options = data => ({
   method: 'POST',
   body: JSON.stringify(data)
 });
+
+export const updateUserInfo = userInfo => dispatch => fetch(`${URL}/updateUserInfo`, options(userInfo))
+  .then((res) => {
+    if (res.ok) {
+      return res.json().then((responseData) => {
+        dispatch({
+          type: UPDATE_USER_INFO,
+          userInfo
+        });
+        return responseData;
+      });
+    }
+    console.log('Error occurred:');
+    console.log(res);
+    return { errorMessages: { REQUEST_ERROR: res.statusText } };
+  });
 
 export const userSignupRequest = userSignupDetails => () => fetch(`${URL}/signup`, options(userSignupDetails));
 
@@ -22,7 +38,7 @@ export const userLoginRequest = userLoginDetails => (
             delete res.token;
             localStorage.setItem('jwtToken', token);
             dispatch({
-              type: actionTypes.LOGIN_SUCCESSFUL,
+              type: LOGIN_SUCCESSFUL,
               authorizationToken: token,
               authenticatedUsername: jwt.decode(token) ? jwt.decode(token).username : '',
             });
@@ -38,5 +54,5 @@ export const userLoginRequest = userLoginDetails => (
 
 export const userLogoutRequest = () => (dispatch) => {
   localStorage.removeItem('jwtToken');
-  dispatch({ type: actionTypes.LOGOUT_USER });
+  dispatch({ type: LOGOUT_USER });
 };

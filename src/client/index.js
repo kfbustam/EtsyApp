@@ -4,11 +4,15 @@ import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import usersReducer from './store/reducers/usersReducer';
+import itemReducer from './store/reducers/itemReducer';
+import userReducer from './store/reducers/userReducer';
+import pageReducer from './store/reducers/pageReducer';
 import Dashboard from './Dashboard';
 
 const rootReducer = combineReducers({
-  users: usersReducer,
+  items: itemReducer,
+  pages: pageReducer,
+  users: userReducer,
 });
 const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)));
 

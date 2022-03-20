@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import ProfileSection from './ProfileSection';
+import FavoritesItems from './FavoriteItems';
+
 
 const createFormControlStyle = {
   background: '#f7f7f7 none repeat scroll 0 0',
@@ -19,7 +22,7 @@ const errorMessageStyle = {
   color: 'red'
 };
 
-class Create extends Component {
+class Favorites extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -62,9 +65,6 @@ class Create extends Component {
     };
     return (
       <>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" />
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
         {
           errorMessages != null
           && Object.keys(errorMessages).map(
@@ -72,31 +72,22 @@ class Create extends Component {
           )
         }
         <div className="container">
-          <h2>Create a Book</h2>
-          <div style={createFormGroupStyle}>
-            <input type="text" style={createFormControlStyle} name="bookID" onChange={onBookIDInputChange} placeholder="Book ID" pattern="[A-Za-z0-9]+" required />
-          </div>
-          <div style={createFormGroupStyle}>
-            <input type="text" style={createFormControlStyle} name="bookTitle" onChange={onBookAuthorTitleInputChange} placeholder="Title" required />
-          </div>
-          <div style={createFormGroupStyle}>
-            <input type="text" style={createFormControlStyle} name="bookAuthor" onChange={onBookAuthorNameInputChange} placeholder="Author" required />
-          </div>
-          <button type="submit" className="btn btn-primary" onClick={onSubmit}>Submit</button>
+          <ProfileSection />
+          <FavoritesItems />
         </div>
       </>
     );
   }
 }
 
-Create.defaultProps = {
+Favorites.defaultProps = {
   onMessageUpdated: PropTypes.func,
   onTabClicked: PropTypes.func,
 };
 
-Create.propTypes = {
+Favorites.propTypes = {
   onMessageUpdated: PropTypes.func,
   onTabClicked: PropTypes.func,
 };
 
-export default Create;
+export default Favorites;

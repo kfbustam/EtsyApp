@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { deleteBookRequest, queryBooks } from './store/actions/bookAction';
 
 const deleteFormControlStyle = {
   background: '#f7f7f7 none repeat scroll 0 0',
