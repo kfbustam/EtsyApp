@@ -36,6 +36,8 @@ app.use(
   })
 );
 
+const JWT_SECRET_KEY = "SECRETKEYJWTLOGIN";
+
 // Only user allowed is admin
 const Users = {
   1: {
@@ -365,7 +367,7 @@ app.post('/login', (req, res) => {
       const token = jwt.sign({
         id: user.id,
         username: user.username
-      }, process.env.JWT_SECRET_KEY);
+      }, JWT_SECRET_KEY);
       res.send({ token, errorMessages });
     } else if (userThatMatches.length > 1) {
       console.log('Duplicate users in the DB found!');
