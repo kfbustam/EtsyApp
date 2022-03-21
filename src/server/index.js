@@ -13,6 +13,10 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+const sqlite3 = require('sqlite3').verbose();
+
+const db = new sqlite3.Database(':memory:');
+
 app.use(cors());
 // set the view engine to ejs
 app.set('view engine', 'jsx');
@@ -36,7 +40,19 @@ app.use(
   })
 );
 
-const JWT_SECRET_KEY = "SECRETKEYJWTLOGIN";
+db.serialize(() => {
+  db.run('CREATE TABLE item (id TEXT, src TEXT)');
+  db.run('CREATE TABLE cart_item (info TEXT)');
+  db.run('CREATE TABLE purchase_history_item (info TEXT)');
+  db.run('CREATE TABLE user (info TEXT)');
+
+  const stmt = db.prepare('INSERT INTO item VALUES (?)');
+  stmt.run('');
+  stmt.finalize();
+});
+db.close();
+
+const JWT_SECRET_KEY = 'SECRETKEYJWTLOGIN';
 
 // Only user allowed is admin
 const Users = {
