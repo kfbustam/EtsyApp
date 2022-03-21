@@ -93,7 +93,7 @@ class Dashboard extends Component {
     }
     return (
       <SSRProvider>
-        <Header />
+        {isAuthenticated && <Header />}
         {isAuthenticated ? defaultComponent : authComponent}
         <UserSettingsModal />
       </SSRProvider>
