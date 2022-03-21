@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { CaretDownFill, PersonCircle } from 'react-bootstrap-icons';
-import { changePageView } from '../store/actions/pageAction';
+import { changePageView as changePageViewAction } from '../store/actions/pageAction';
+import { PAGES } from '../store/actions/actionTypes';
 
 const headerButtonStyle = {
   flexDirection: 'row',
@@ -14,12 +15,12 @@ const headerButtonStyle = {
 class ProfileIcon extends Component {
   render() {
     const onProfileClicked = () => {
-      const { changeCurrentView } = this.props;
-      changeCurrentView();
+      const { changePageView } = this.props;
+      changePageView(PAGES.PROFILE);
     };
 
     return (
-      <div style={headerButtonStyle}>
+      <div style={headerButtonStyle} onClick={onProfileClicked} onKeyPress={onProfileClicked} role="button" tabIndex="-1" >
         <PersonCircle />
         <CaretDownFill />
       </div>
@@ -31,15 +32,15 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  changeCurrentView: userLoginDetails => dispatch(changeCurrentViewAction(userLoginDetails))
+  changePageView: userLoginDetails => dispatch(changePageViewAction(userLoginDetails))
 });
 
 ProfileIcon.defaultProps = {
-  changeCurrentView: PropTypes.func
+  changePageView: PropTypes.func,
 };
 
 ProfileIcon.propTypes = {
-  changeCurrentView: PropTypes.func
+  changePageView: PropTypes.func,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileIcon);

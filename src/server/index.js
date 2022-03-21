@@ -292,7 +292,8 @@ app.post('/search', (req, res) => {
       const fuse = new Fuse(Object.values(items), {
         keys: ['name']
       });
-      const searchResult = fuse.search(searchText);
+      const searchResults = fuse.search(searchText);
+      const searchResult = searchResults.map(searchResult => searchResult.item);
       res.send({ searchResult });
     } else {
       errorMessages = {};
