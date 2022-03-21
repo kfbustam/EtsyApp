@@ -4,13 +4,14 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import UserSettingsModal from './UserSettingsModal';
 import Home from './Home';
+import Header from './nav/Header';
 import Login from './Login';
 import Profile from './Profile';
 import Favorite from './Favorites';
 import SellOnEtsy from './SellOnEtsy';
 import ShopHome from './ShopHome';
 import Cart from './Cart';
-import MyPurchases from './Purchase';
+import PurchaseHistory from './PurchaseHistory';
 import ShoppingItemOverview from './ShoppingItemOverview';
 import SignUp from './SignUp';
 import SearchLanding from './SearchLanding';
@@ -78,7 +79,7 @@ class Dashboard extends Component {
         break;
       case 'MY_PURCHASES':
         defaultComponent = (
-          <MyPurchases />
+          <PurchaseHistory />
         );
         break;
       case 'SHOPPING_ITEM_OVERVIEW':
@@ -92,6 +93,7 @@ class Dashboard extends Component {
     }
     return (
       <SSRProvider>
+        <Header />
         {isAuthenticated ? defaultComponent : authComponent}
         <UserSettingsModal />
       </SSRProvider>
@@ -100,8 +102,8 @@ class Dashboard extends Component {
 }
 
 const mapStateToProps = state => ({
-  isAuthenticated: state.users.isAuthenticated,
-  pageView: state.pages.pageView,
+  isAuthenticated: state.user.isAuthenticated,
+  pageView: state.page.pageView,
 });
 
 const mapDispatchToProps = dispatch => ({

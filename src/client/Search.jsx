@@ -2,6 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Search as SearchIcon } from 'react-bootstrap-icons';
+import {
+  runFuzzySearch as runFuzzySearchAction,
+  updateSearchInputText as updateSearchInputTextAction
+} from './store/actions/itemAction';
+import { PAGES } from './store/actions/actionTypes';
+import { changePageView as changePageViewAction } from './store/actions/pageAction';
 
 const searchInputContainerStyle = {
   margin: 'auto',
@@ -17,56 +23,60 @@ const searchInputStyle = {
 };
 
 const searchIconStyle = {
-  bottom: 15,
+  bottom: 12,
   position: 'absolute',
   right: 20,
-  width: 10,
-  height: 10,
+  width: 15,
+  height: 15,
 };
 
 // eslint-disable-next-line react/prefer-stateless-function
 class Search extends Component {
   onSearchInputChange = (e) => {
-    const { changeSearchInputResult } = this.props;
-    this.debounce(() => {
-      changeSearchInputResult(e.target.value);
-    }, 3000);
+    const { updateSearchInputText } = this.props;
+    updateSearchInputText(e.target.value);
   };
 
-  debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
-  }
+  onSearchClick = () => {
+    const { changePageView, runFuzzySearch, searchInputText } = this.props;
+    runFuzzySearch(searchInputText);
+  };
 
   render() {
-    const { placeholder } = this.props;
+    const { placeholder, searchInputText } = this.props;
     return (
       <div style={searchInputContainerStyle}>
         <input className="form-control" type="text" placeholder={placeholder ?? 'Search for anything'} aria-label="Search" onChange={this.onSearchInputChange} style={searchInputStyle} />
-        <SearchIcon style={searchIconStyle} />
+        <SearchIcon style={searchIconStyle} onClick={this.onSearchClick} onKeyPress={this.onSearchClick} role="button" tabIndex="-1" />
       </div>
     );
   }
 }
 const mapStateToProps = state => ({
-  isAuthenticated: state.users.isAuthenticated,
+  isAuthenticated: state.user.isAuthenticated,
+  searchInputText: state.item.searchInputText,
 });
 
 const mapDispatchToProps = dispatch => ({
-  changeSearchInputResult: userLoginDetails => dispatch(changeSearchInputResultAction(userLoginDetails))
+  changePageView: page => dispatch(changePageViewAction(page)),
+  runFuzzySearch: searchText => dispatch(runFuzzySearchAction(searchText)),
+  updateSearchInputText: searchText => dispatch(updateSearchInputTextAction(searchText)),
 });
 
 Search.defaultProps = {
-  changeSearchInputResult: PropTypes.func,
-  placeholder: PropTypes.string || PropTypes.any
+  changePageView: PropTypes.func,
+  placeholder: PropTypes.string || PropTypes.any,
+  runFuzzySearch: PropTypes.func,
+  searchInputText: PropTypes.string,
+  updateSearchInputText: PropTypes.func
 };
 
 Search.propTypes = {
-  changeSearchInputResult: PropTypes.func,
-  placeholder: PropTypes.string || PropTypes.any
+  changePageView: PropTypes.func,
+  placeholder: PropTypes.string || PropTypes.any,
+  runFuzzySearch: PropTypes.func,
+  searchInputText: PropTypes.string,
+  updateSearchInputText: PropTypes.func
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Search);

@@ -14,9 +14,10 @@ export const updateUserInfo = userInfo => dispatch => fetch(`${URL}/updateUserIn
   .then((res) => {
     if (res.ok) {
       return res.json().then((responseData) => {
+        const { userInfo: updatedUserInfo } = responseData;
         dispatch({
           type: UPDATE_USER_INFO,
-          userInfo
+          updatedUserInfo
         });
         return responseData;
       });

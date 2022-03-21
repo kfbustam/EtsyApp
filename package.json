@@ -23,6 +23,7 @@
     "express-jwt": "^6.1.1",
     "express-react-views": "^0.11.0",
     "express-session": "^1.17.2",
+    "fuse.js": "^6.5.3",
     "jsonwebtoken": "^8.5.1",
     "prop-types": "^15.8.1",
     "react": "^16.5.2",

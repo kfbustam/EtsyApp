@@ -2,35 +2,32 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import { connect } from 'react-redux';
-import {
-  removeItemFromCart as removeItemFromCartAction,
-} from './store/actions/cartAction';
 
 const errorMessageStyle = {
   color: 'red'
 };
 
-const cartItemCardStyle = {
+const purchaseItemCardStyle = {
   display: 'flex',
   flexDirection: 'column',
 };
 
-const cartItemCardHeaderStyle = {
+const purchaseItemCardHeaderStyle = {
   display: 'flex',
   flexDirection: 'row',
 };
 
-const cartItemCardBodyStyle = {
+const purchaseItemCardBodyStyle = {
   display: 'flex',
   flexDirection: 'row',
 };
 
-const cartItemCardBodyDescriptionStyle = {
+const purchaseItemCardBodyDescriptionStyle = {
   display: 'flex',
   flexDirection: 'column',
 };
 
-const cartItemCardBodyButtonsStyle = {
+const purchaseItemCardBodyButtonsStyle = {
   display: 'flex',
   flexDirection: 'row',
 };
@@ -42,11 +39,15 @@ const noteInputStyle = {
   position: 'relative',
 };
 
-const cartItemCardCouponCodeLinkStyle = {
+const purchaseItemCardCouponCodeLinkStyle = {
 
 };
 
-class CartItem extends Component {
+const purchaseItemPriceStyle = {
+  margin: 'auto'
+};
+
+class PurchaseHistoryItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -76,15 +77,20 @@ class CartItem extends Component {
   }
 
   onNoteInputChange = (e) => {
-    const { changeCartItemNote, item } = this.props;
+    const { changePurchaseHistoryItemNote, item } = this.props;
     this.debounce(() => {
-      changeCartItemNote(item.id, e.target.value);
+      changePurchaseHistoryItemNote(item.id, e.target.value);
     }, 3000);
+  };
+
+  onBuyThisAgainClick = () => {
+
   };
 
   render() {
     const { item } = this.props;
     const {
+      createDate,
       shopName,
       shopSrc,
       description,
@@ -102,6 +108,7 @@ class CartItem extends Component {
       saleCount,
       sizes,
       stockCount,
+      quantity
     } = item;
     const {
       errorMessages
@@ -115,53 +122,57 @@ class CartItem extends Component {
             errorMessageKey => <p style={errorMessageStyle}>{errorMessages[errorMessageKey]}</p>
           )
         }
-        <div style={cartItemCardStyle}>
-          <div>{shopName}</div>
-          <div style={cartItemCardBodyStyle}>
-            <div style={cartItemCardBodyStyle}>
+        <div style={purchaseItemCardStyle}>
+          <div style={purchaseItemCardHeaderStyle}>
+            Purchased from
+            {' '}
+            {shopName}
+            {' '}
+            on
+            {' '}
+            {(new Date(createDate)).toString()}
+          </div>
+          <div style={purchaseItemCardBodyStyle}>
+            <div style={purchaseItemCardBodyStyle}>
               <img src={src} alt="itemImg" />
-              <div style={cartItemCardBodyDescriptionStyle}>
-                <>{description}</>
-                <div style={cartItemCardBodyButtonsStyle}>
-                  <button type="submit" className="btn btn-primary" onClick={this.onSaveForLaterClick}>Save for later</button>
-                  <button type="submit" className="btn btn-primary" onClick={this.onRemoveClick}>Remove</button>
+              <div style={purchaseItemCardBodyDescriptionStyle}>
+                <div>{itemName}</div>
+                <div>{description}</div>
+                <div>
+                  Quantity:
+                  {' '}
+                  {quantity}
+                </div>
+                <div style={purchaseItemCardBodyButtonsStyle}>
+                  <button type="submit" className="btn btn-primary" onClick={this.onBuyThisAgainClick}>Buy this again</button>
+                  <div style={purchaseItemPriceStyle}>
+                    $
+                    {price}
+                  </div>
                 </div>
               </div>
             </div>
-            <div>
-              $
-              {price}
-            </div>
           </div>
-          <div style={cartItemCardCouponCodeLinkStyle}>
-            <button type="submit" className="btn btn-primary" onClick={this.onApplyShopCouponCodesClick}>Apply shop coupon codes</button>
-          </div>
-          <input className="form-control" type="text" placeholder="Add a note to seller" aria-label="Note" onChange={this.onNoteInputChange} style={noteInputStyle} />
         </div>
       </>
     );
   }
 }
 
-CartItem.defaultProps = {
+PurchaseHistoryItem.defaultProps = {
   item: PropTypes.object,
-  removeItemFromCart: PropTypes.func
 };
 
-CartItem.propTypes = {
+PurchaseHistoryItem.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   item: PropTypes.object,
-  removeItemFromCart: PropTypes.func
 };
 
 const mapStateToProps = state => ({
-  cartItem: state.cart.cartItem,
 });
 
 const mapDispatchToProps = dispatch => ({
-  removeItemFromCart: itemID => dispatch(removeItemFromCartAction(itemID)),
-
 });
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(CartItem);
+export default connect(mapStateToProps, mapDispatchToProps)(PurchaseHistoryItem);

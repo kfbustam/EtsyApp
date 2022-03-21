@@ -5,6 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import jwt from 'jsonwebtoken';
 import { toggleModal as toggleModalAction } from './store/actions/pageAction';
 import { updateUserInfo as updateUserInfoAction } from './store/actions/userAction';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -68,7 +69,8 @@ class UserSettingsModal extends Component {
       language,
       currency
     } = this.state;
-    updateUserInfo({ currency, language, region });
+    const jwtDecoded = jwt.decode(localStorage.getItem('jwtToken'));
+    updateUserInfo({ userID: jwtDecoded.id, userInfo: { currency, language, region } });
     this.onModalClose();
   }
 
@@ -92,6 +94,7 @@ class UserSettingsModal extends Component {
             alignRight
             title={currRegion}
             id="dropdown-menu-align-right"
+            key="region"
             onSelect={this.onRegionSelect}
           >
             {REGIONS.map(region => <Dropdown.Item eventKey={region}>{region}</Dropdown.Item>)}
@@ -101,6 +104,7 @@ class UserSettingsModal extends Component {
             alignRight
             title={currLanguage}
             id="dropdown-menu-align-right"
+            key="language"
             onSelect={this.onLanguageSelect}
           >
             {LANGUAGES.map(language => <Dropdown.Item eventKey={language}>{language}</Dropdown.Item>)}
@@ -110,6 +114,7 @@ class UserSettingsModal extends Component {
             alignRight
             title={currCurrency}
             id="dropdown-menu-align-right"
+            key="currency"
             onSelect={this.onCurrencySelect}
           >
             {CURRENCIES.map(currency => <Dropdown.Item eventKey={currency}>{currency}</Dropdown.Item>)}
@@ -129,7 +134,7 @@ class UserSettingsModal extends Component {
 }
 
 const mapStateToProps = state => ({
-  showUserSettingsModal: state.pages.showUserSettingsModal
+  showUserSettingsModal: state.page.showUserSettingsModal
 });
 
 const mapDispatchToProps = dispatch => ({

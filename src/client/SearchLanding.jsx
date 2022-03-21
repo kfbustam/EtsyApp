@@ -6,12 +6,11 @@ import {
   Heart, QuestionCircle, Filter, ArrowRight
 } from 'react-bootstrap-icons';
 import Header from './nav/Header';
-
+import { connect } from 'react-redux';
 
 const searchLandingShoppingItemsHeaderStyle = {
   display: 'flex',
   flexDirection: 'row',
-  width: '100%'
 };
 
 const errorMessageStyle = {
@@ -42,6 +41,11 @@ const moreLikeThisLinkStyle = {
   flexDirection: 'row',
 };
 
+const filterStyle = {
+  width: '20%',
+  height: '10%'
+};
+
 const ESTIMATED_ARRIVAL_TIMES = ['Any time'];
 
 const SORT_BY_OPTIONS = ['Relevancy'];
@@ -68,7 +72,7 @@ class SearchLanding extends Component {
   }
 
   render() {
-    const { items } = this.props;
+    const { searchResult: items } = this.props;
     const {
       errorMessages,
       estimatedArrival,
@@ -85,7 +89,7 @@ class SearchLanding extends Component {
           )
         }
         <div style={searchLandingShoppingItemsHeaderStyle}>
-          <Form.Select aria-label="Default select example" onChange={this.onEstimatedArrivalChange}>
+          <Form.Select aria-label="Default select example" onChange={this.onEstimatedArrivalChange} style={filterStyle}>
             <option>
               Estimated Arrival
               {' '}
@@ -110,7 +114,7 @@ class SearchLanding extends Component {
           </>
           <QuestionCircle />
           <Heart />
-          <Form.Select aria-label="Default select example" onChange={this.onSortByChange}>
+          <Form.Select aria-label="Default select example" onChange={this.onSortByChange} style={filterStyle}>
             <option>
               Sort by:
               {' '}
@@ -155,12 +159,19 @@ class SearchLanding extends Component {
 }
 
 SearchLanding.defaultProps = {
-  items: PropTypes.array,
+  searchResult: PropTypes.array,
 };
 
 SearchLanding.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  items: PropTypes.array,
+  searchResult: PropTypes.array,
 };
 
-export default SearchLanding;
+const mapStateToProps = state => ({
+  searchResult: state.item.searchResult,
+});
+
+const mapDispatchToProps = dispatch => ({
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchLanding);

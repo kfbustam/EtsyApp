@@ -27,17 +27,18 @@ if (window != null) {
       region: 'United States',
       currency: 'USD',
       language: 'English',
-      username: jwtDecoded.username
+      username: isAuthenticated && jwtDecoded != null ? jwtDecoded.username : '',
     }
   };
 }
 
 const reducer = (state = initialState, action) => {
-  const { type, userInfo } = action;
+  const { type, updatedUserInfo } = action;
   const { authenticatedUsername, user } = state;
   switch (type) {
     case LOGIN_SUCCESSFUL:
       return {
+        ...state,
         isAuthenticated: true,
         authenticatedUsername: authenticatedUsername ?? '',
         user: {
@@ -49,14 +50,18 @@ const reducer = (state = initialState, action) => {
       };
     case LOGOUT_USER: {
       return {
+        ...state,
         isAuthenticated: false,
         authenticatedUsername: '',
       };
     }
     case UPDATE_USER_INFO: {
       return {
-        ...user,
-        ...userInfo
+        ...state,
+        user: {
+          ...user,
+          ...updatedUserInfo
+        }
       };
     }
     default:

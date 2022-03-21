@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Cart } from 'react-bootstrap-icons';
-import { changePageView } from '../store/actions/pageAction';
+import { changePageView as changeCurrentViewAction } from '../store/actions/pageAction';
+import { PAGES } from '../store/actions/actionTypes';
 
 const headerButtonStyle = {
   margin: 'auto',
@@ -12,24 +13,20 @@ const headerButtonStyle = {
 // eslint-disable-next-line react/prefer-stateless-function
 class CartIcon extends Component {
   render() {
-    // const onLogoutClicked = () => {
-    //   const { changeCurrentView } = this.props;
-    //   changeCurrentView();
-    // };
+    const { changeCurrentView } = this.props;
 
     return (
       <div style={headerButtonStyle}>
-        <Cart />
+        <Cart onClick={() => changeCurrentView(PAGES.CART)} onKeyPress={() => changeCurrentView(PAGES.CART)} role="button" tabIndex="-1" />
       </div>
     );
   }
 }
 const mapStateToProps = state => ({
-  isAuthenticated: state.users.isAuthenticated,
 });
 
 const mapDispatchToProps = dispatch => ({
-  changeCurrentView: userLoginDetails => dispatch(changeCurrentViewAction(userLoginDetails))
+  changeCurrentView: page => dispatch(changeCurrentViewAction(page))
 });
 
 CartIcon.defaultProps = {

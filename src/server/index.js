@@ -1,6 +1,8 @@
 const express = require('express');
 const os = require('os');
 
+const Fuse = require('fuse.js');
+
 const app = express();
 const cors = require('cors');
 // require express middleware body-parser
@@ -47,31 +49,270 @@ const Users = {
 };
 
 const items = {
+  0: {
+    id: 0,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: true,
+    name: 'The kitten 1',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
+  },
   1: {
-    id: 1, src: 'https://placekitten.com/258/205', isFavorited: true, name: 'The kitten 1', price: 120.00
+    id: 1,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: false,
+    name: 'The kitten 2',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
   },
   2: {
-    id: 2, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 2', price: 120.00
+    id: 2,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: false,
+    name: 'The kitten 3',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
   },
   3: {
-    id: 3, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 3', price: 120.00
+    id: 3,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: false,
+    name: 'The kitten 4',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
   },
   4: {
-    id: 4, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 4', price: 120.00
+    id: 4,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: false,
+    name: 'The kitten 5',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
   },
   5: {
-    id: 5, src: 'https://placekitten.com/258/205', isFavorited: false, name: 'The kitten 5', price: 120.00
+    id: 5,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: true,
+    name: 'The kitten 6',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
   },
+};
+
+const cartItems = {
+  4: {
+    id: 4,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: false,
+    name: 'The kitten 5',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    shopName: 'Shoppe',
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
+  },
+  5: {
+    id: 5,
+    src: 'https://placekitten.com/258/205',
+    isFavorited: true,
+    name: 'The kitten 6',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    shopName: 'Shoppe',
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
+  },
+};
+
+const purchaseHistory = {
   6: {
-    id: 6, src: 'https://placekitten.com/258/205', isFavorited: true, name: 'The kitten 6', price: 120.00
+    id: 6,
+    createDate: Date.now(),
+    src: 'https://placekitten.com/258/205',
+    shopSrc: 'https://placekitten.com/10/10',
+    isFavorited: true,
+    name: 'The kitten 6',
+    price: 120.00,
+    arrivesByDate: Date.now(),
+    doesItemShipFreeInUsersCountry: true,
+    peopleWithItemInCartCount: 256,
+    description: 'This is a kitten',
+    images: [
+      { src: 'https://placekitten.com/400/500' },
+      { src: 'https://placekitten.com/400/500' },
+    ],
+    isEtsysPick: true,
+    isStarSeller: true,
+    saleCount: 46,
+    shopName: 'Shoppe',
+    sizes: [
+      'small',
+      'medium',
+      'large'
+    ],
+    stockCount: 36,
+    quantity: 5
   },
 };
 
 let errorMessages = {};
 let messages = {};
 
+app.post('/search', (req, res) => {
+  if (
+    req.body
+    && req.body.searchText
+  ) {
+    const { searchText } = req.body;
+    if (searchText) {
+      const fuse = new Fuse(Object.values(items), {
+        keys: ['name']
+      });
+      const searchResult = fuse.search(searchText);
+      res.send({ searchResult });
+    } else {
+      errorMessages = {};
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = 'Invalid search string';
+      res.send({ errorMessages }, 200);
+    }
+  }
+});
+
+
 app.get('/items', (req, res) => {
-  res.send({ items: Object.values(items) });
+  res.send({ items });
+});
+
+app.get('/cartItems', (req, res) => {
+  res.send({ cartItems });
+});
+
+app.get('/purchaseHistory', (req, res) => {
+  res.send({ purchaseHistory });
 });
 
 app.post('/signup', (req, res) => {
@@ -121,7 +362,7 @@ app.post('/login', (req, res) => {
       errorMessages = {};
       req.session.user = userThatMatches;
       const token = jwt.sign({
-        id: user.username,
+        id: user.id,
         username: user.username
       }, process.env.JWT_SECRET_KEY);
       res.send({ token, errorMessages });
@@ -150,7 +391,45 @@ app.post('/favoriteItem', (req, res) => {
     const { itemID } = req.body;
     if (items[itemID]) {
       items[itemID].isFavorited = true;
-      res.send({ items: Object.values(items) }, 200);
+      res.send({ items: Object.values(items), item: items[itemID] }, 200);
+    } else {
+      errorMessages = {};
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
+        itemID
+      }" does not exist`;
+      res.send({ errorMessages }, 200);
+    }
+  }
+});
+
+app.post('/addCartItem', (req, res) => {
+  if (
+    req.body
+    && req.body.itemID
+  ) {
+    const { itemID } = req.body;
+    if (items[itemID]) {
+      cartItems[itemID] = items[itemID];
+      res.send({ cartItems: Object.values(cartItems), itemID }, 200);
+    } else {
+      errorMessages = {};
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
+        itemID
+      }" does not exist`;
+      res.send({ errorMessages }, 200);
+    }
+  }
+});
+
+app.post('/removeCartItem', (req, res) => {
+  if (
+    req.body
+    && req.body.itemID
+  ) {
+    const { itemID } = req.body;
+    if (cartItems[itemID]) {
+      delete cartItems[itemID];
+      res.send({ cartItems: Object.values(cartItems), itemID }, 200);
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
@@ -169,7 +448,7 @@ app.post('/unFavoriteItem', (req, res) => {
     const { itemID } = req.body;
     if (items[itemID]) {
       items[itemID].isFavorited = false;
-      res.send({ items: Object.values(items) }, 200);
+      res.send({ items: Object.values(items), item: items[itemID] }, 200);
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
@@ -183,13 +462,11 @@ app.post('/unFavoriteItem', (req, res) => {
 app.post('/updateUserInfo', (req, res) => {
   if (
     req.body
-    && req.session.user
   ) {
-    const { userInfo } = req.body;
-    const { id } = req.session.user;
-    if (Users[id]) {
-      Users[id] = {
-        ...Users[id],
+    const { userID, userInfo } = req.body;
+    if (Users[userID]) {
+      Users[userID] = {
+        ...Users[userID],
         ...userInfo
       };
       res.send({ userInfo }, 200);

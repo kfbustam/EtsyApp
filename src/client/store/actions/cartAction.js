@@ -1,12 +1,6 @@
 import {
-  ADD_ITEM_TO_FAVORITES,
-  REMOVE_ITEM_FROM_FAVORITES,
-  GET_SHOPPING_ITEMS_POSTED_BY_USERS,
-  SET_SHOPPING_ITEM_OVERVIEW,
-  SEARCH_ITEMS,
-  UPDATE_SEARCH_INPUT
+  ADD_ITEM_TO_FAVORITES, REMOVE_CART_ITEM, GET_SHOPPING_ITEMS_IN_CART, SET_SHOPPING_ITEM_OVERVIEW
 } from './actionTypes';
-import { PAGES } from './actionTypes';
 
 const URL = 'http://localhost:8080';
 
@@ -34,35 +28,8 @@ export const viewShoppingItemOverview = itemID => (dispatch) => {
   });
 };
 
-export const updateSearchInputText = searchInputText => (dispatch) => {
-  dispatch({
-    type: UPDATE_SEARCH_INPUT,
-    searchInputText
-  });
-};
-
-export const runFuzzySearch = searchText => (dispatch) => {
-  fetch(`${URL}/search`, postOptions({ searchText }))
-    .then((res) => {
-      if (res.ok) {
-        return res.json().then((responseData) => {
-          const { searchResult } = responseData;
-          dispatch({
-            searchResult,
-            type: SEARCH_ITEMS,
-          });
-          dispatch({ type: PAGES.SEARCH_LANDING });
-          return responseData;
-        });
-      }
-      console.log('Error occurred:');
-      console.log(res);
-      return { errorMessages: { REQUEST_ERROR: res.statusText } };
-    });
-};
-
-export const addItemToFavorites = itemID => (dispatch) => {
-  fetch(`${URL}/favoriteItem`, postOptions({ itemID }))
+export const addItemToCart = itemID => (dispatch) => {
+  fetch(`${URL}/addCartItem`, postOptions({ itemID }))
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
@@ -81,15 +48,15 @@ export const addItemToFavorites = itemID => (dispatch) => {
     });
 };
 
-export const hydrateShoppingItems = () => (dispatch) => {
-  fetch(`${URL}/items`, getOptions())
+export const hydrateCartItems = () => (dispatch) => {
+  fetch(`${URL}/cartItems`, getOptions())
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
-          const { items } = responseData;
+          const { cartItems } = responseData;
           dispatch({
-            type: GET_SHOPPING_ITEMS_POSTED_BY_USERS,
-            items
+            type: GET_SHOPPING_ITEMS_IN_CART,
+            cartItems: Object.values(cartItems)
           });
           return responseData;
         });
@@ -100,16 +67,15 @@ export const hydrateShoppingItems = () => (dispatch) => {
     });
 };
 
-export const removeItemFromFavorites = itemID => (dispatch) => {
-  fetch(`${URL}/unFavoriteItem`, postOptions({ itemID }))
+export const removeItemFromCart = itemID => (dispatch) => {
+  fetch(`${URL}/removeCartItem`, postOptions({ itemID }))
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
-          const { item, items } = responseData;
+          const { cartItems } = responseData;
           dispatch({
-            type: REMOVE_ITEM_FROM_FAVORITES,
-            itemID: item.id,
-            items
+            type: REMOVE_CART_ITEM,
+            cartItems
           });
           return responseData;
         });

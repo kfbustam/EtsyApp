@@ -37,7 +37,7 @@ class Footer extends Component {
   }
 }
 const mapStateToProps = state => ({
-  user: state.users.user,
+  user: state.user.user,
 });
 
 const mapDispatchToProps = dispatch => ({

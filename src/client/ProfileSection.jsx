@@ -80,7 +80,7 @@ class ProfileSection extends Component {
 }
 
 const mapStateToProps = state => ({
-  username: state.users.username,
+  username: state.user.username,
 });
 
 const mapDispatchToProps = dispatch => ({

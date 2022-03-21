@@ -44,7 +44,7 @@ class FavoriteItemsNavBar extends Component {
   }
 }
 const mapStateToProps = state => ({
-  isAuthenticated: state.users.isAuthenticated,
+  isAuthenticated: state.user.isAuthenticated,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -6,13 +6,14 @@ import {
 } from 'react-bootstrap-icons';
 import { connect } from 'react-redux';
 import Footer from './Footer';
-import Header from './nav/Header';
 import {
   addItemToFavorites as addItemToFavoritesAction,
   hydrateShoppingItems as hydrateShoppingItemsAction,
-  removeItemFromFavorites as removeItemFromFavoritesAction
+  removeItemFromFavorites as removeItemFromFavoritesAction,
+  viewShoppingItemOverview as viewShoppingItemOverviewAction,
 } from './store/actions/itemAction';
 import { changePageView as changePageViewAction } from './store/actions/pageAction';
+
 import { PAGES } from './store/actions/actionTypes';
 
 const itemsContainerStyle = {
@@ -34,8 +35,8 @@ const heartIconStyle = {
   position: 'absolute',
   top: 16,
   right: 10,
-  width: 10,
-  height: 10,
+  width: 30,
+  height: 30,
 };
 
 const pricePillStyle = {
@@ -71,7 +72,7 @@ const itemCardButtonContainerStyle = {
   height: '200px',
   position: 'absolute',
   marginLeft: 40,
-  marginTop: 40,
+  marginTop: 60,
   zIndex: 10
 };
 
@@ -88,13 +89,6 @@ const rootStyle = {
   justifyContent: 'space-between'
 };
 
-const options = data => ({
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  method: 'GET',
-  body: JSON.stringify(data)
-});
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -107,15 +101,17 @@ class Home extends Component {
       hydrateShoppingItems,
       items
     } = this.props;
-    if (items.length === 0) {
+    if (Object.keys(items).length === 0) {
       hydrateShoppingItems();
     }
   }
 
-  onItemClick = () => {
+  onItemClick = (itemID) => {
     const {
-      changePageView
+      changePageView,
+      viewShoppingItemOverview
     } = this.props;
+    viewShoppingItemOverview(itemID);
     changePageView(PAGES.SHOPPING_ITEM_OVERVIEW);
   };
 
@@ -127,7 +123,6 @@ class Home extends Component {
     return (
       <div style={rootStyle}>
         <div>
-          <Header />
           <div style={welcomeBackStyle}>
             Welcome back,
             {' '}
@@ -139,9 +134,9 @@ class Home extends Component {
             <div>Recently favorited and viewed items</div>
           </div>
           <div style={itemsContainerStyle}>
-            { items.map(item => (
+            { Object.values(items).map(item => (
               <div style={itemCardContainerStyle} key={item.name}>
-                <div style={itemCardButtonContainerStyle} onClick={this.onItemClick} onKeyPress={this.onItemClick} role="button" tabIndex="-1" />
+                <div style={itemCardButtonContainerStyle} onClick={() => this.onItemClick(item.id)} onKeyPress={() => this.onItemClick(item.id)} role="button" tabIndex="-1" />
                 <div style={favoriteItemImgContainerStyle}>
                   <img style={favoriteItemImgStyle} src={item.src} alt="Logo" />
                   <div style={pricePillStyle}>{`$${item.price}`}</div>
@@ -169,6 +164,7 @@ Home.defaultProps = {
   items: PropTypes.array,
   removeItemFromFavorites: PropTypes.func,
   user: PropTypes.object,
+  viewShoppingItemOverview: PropTypes.func,
 };
 
 Home.propTypes = {
@@ -180,11 +176,12 @@ Home.propTypes = {
   removeItemFromFavorites: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   user: PropTypes.object,
+  viewShoppingItemOverview: PropTypes.func,
 };
 
 const mapStateToProps = state => ({
-  items: state.items.items,
-  user: state.users.user,
+  items: state.item.items,
+  user: state.user.user,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -192,6 +189,7 @@ const mapDispatchToProps = dispatch => ({
   changePageView: page => dispatch(changePageViewAction(page)),
   hydrateShoppingItems: () => dispatch(hydrateShoppingItemsAction()),
   removeItemFromFavorites: itemID => dispatch(removeItemFromFavoritesAction(itemID)),
+  viewShoppingItemOverview: itemID => dispatch(viewShoppingItemOverviewAction(itemID)),
 });
 
 
