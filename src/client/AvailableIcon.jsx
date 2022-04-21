@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { CaretDownFill, PersonCircle } from 'react-bootstrap-icons';
-import { changePageView } from '../store/actions/pageAction';
+import { changePageView as changeCurrentViewAction } from './store/actions/pageAction';
 
 const headerButtonStyle = {
   display: 'flex',

@@ -45,10 +45,6 @@ db.serialize(() => {
   db.run('CREATE TABLE cart_item (info TEXT)');
   db.run('CREATE TABLE purchase_history_item (info TEXT)');
   db.run('CREATE TABLE user (info TEXT)');
-
-  const stmt = db.prepare('INSERT INTO item VALUES (?)');
-  stmt.run('');
-  stmt.finalize();
 });
 db.close();
 
@@ -213,6 +209,45 @@ const items = {
   },
 };
 
+const shops = [
+  {
+    admirerCount: 2,
+    dateJoined: Date.now(),
+    name: 'The kitten 6',
+    saleCount: 3,
+    src: 'https://placekitten.com/400/500',
+    items: [],
+    ownerInfo: {
+      id: 1,
+      username: 'admin',
+      password: 'admin',
+      region: 'United States',
+      currency: 'USD',
+      language: 'English',
+    }
+  }
+];
+// {
+//   0: {
+//     admirerCount: 2,
+//     dateJoined: Date.now(),
+//     shopName: 'My Shop',
+//     saleCount: 20,
+//     src: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc',
+//     items: [
+//       {
+//         cost: 12.40,
+//         imgURL: 'https://images.unsplash.com/photo-1648493788024-b5c4e31ed225',
+//         itemName: 'potion'
+//       }
+//     ],
+//     ownerInfo: {
+//       name: 'Fray Bekele',
+//       src: 'https://images.unsplash.com/photo-1648484099728-5acd3101b8e6'
+//     }
+//   }
+// };
+
 const cartItems = {
   4: {
     id: 4,
@@ -238,6 +273,7 @@ const cartItems = {
       'large'
     ],
     stockCount: 36,
+    quantity: 1
   },
   5: {
     id: 5,
@@ -263,6 +299,7 @@ const cartItems = {
       'large'
     ],
     stockCount: 36,
+    quantity: 2
   },
 };
 
@@ -297,6 +334,8 @@ const purchaseHistory = {
   },
 };
 
+let isShopNameAvailable = null;
+
 let errorMessages = {};
 let messages = {};
 
@@ -321,6 +360,10 @@ app.post('/search', (req, res) => {
   }
 });
 
+app.get('/shops', (req, res) => {
+  res.send({ shops });
+});
+
 
 app.get('/items', (req, res) => {
   res.send({ items });
@@ -328,6 +371,24 @@ app.get('/items', (req, res) => {
 
 app.get('/cartItems', (req, res) => {
   res.send({ cartItems });
+});
+
+app.post('/checkShopName', (req, res) => {
+  const { shopName } = req.body;
+  const shopsWithShopName = Object.values(shops).filter(shop => shop.name === shopName);
+  if (shopsWithShopName.length === 1) {
+    isShopNameAvailable = false;
+  } else if (shopsWithShopName.length === 0) {
+    isShopNameAvailable = true;
+  }
+  res.send({ isShopNameAvailable });
+});
+
+app.post('/createShop', (req, res) => {
+  const { shopName } = req.body;
+  // insert new row into shops table
+  shops[shops.length + 1] = { name: shopName };
+  res.send({ myShopInfo: shops });
 });
 
 app.get('/purchaseHistory', (req, res) => {
@@ -338,7 +399,6 @@ app.post('/signup', (req, res) => {
   messages = {};
   if (req.session.user) {
     res.render('Dashboard', {
-      books,
       messages,
     });
   } else {
@@ -365,7 +425,6 @@ app.post('/login', (req, res) => {
   messages = {};
   if (req.session.user) {
     res.render('Dashboard', {
-      books,
       messages,
     });
   } else {
@@ -405,7 +464,7 @@ app.post('/logout', (req, res) => {
 app.post('/favoriteItem', (req, res) => {
   if (
     req.body
-    && req.body.itemID
+    && req.body.itemID != null
   ) {
     const { itemID } = req.body;
     if (items[itemID]) {
@@ -462,7 +521,7 @@ app.post('/removeCartItem', (req, res) => {
 app.post('/unFavoriteItem', (req, res) => {
   if (
     req.body
-    && req.body.itemID
+    && req.body.itemID != null
   ) {
     const { itemID } = req.body;
     if (items[itemID]) {

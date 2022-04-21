@@ -1,26 +1,20 @@
-import {
-  SET_SHOP_NAME
-} from '../actions/actionTypes';
-
 let initialState = {};
 
 if (window != null) {
   initialState = {
-    shop: null,
+    isShopNameAvailable: null,
+    myShopInfo: [],
   };
 }
 
 const reducer = (state = initialState, action) => {
-  const { shopName, type } = action;
-  switch (type) {
-    case SET_SHOP_NAME:
-      return {
-        ...state,
-        shop: { name: shopName }
-      };
-    default:
-      return state;
-  }
+  const { isShopNameAvailable, myShopInfo } = action;
+  return {
+    ...state,
+    isShopNameAvailable:
+      isShopNameAvailable != null ? isShopNameAvailable : state.isShopNameAvailable,
+    myShopInfo: myShopInfo != null ? myShopInfo : state.myShopInfo
+  };
 };
 
 export default reducer;

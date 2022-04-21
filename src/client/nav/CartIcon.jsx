@@ -22,6 +22,7 @@ class CartIcon extends Component {
     );
   }
 }
+
 const mapStateToProps = state => ({
 });
 

@@ -5,7 +5,8 @@ import { userLogoutRequest as userLogoutRequestAction } from '../store/actions/u
 import EtsyLogo from './EtsyLogo';
 import Search from '../Search';
 import FavoriteIcon from './FavoriteIcon';
-import ProfileIcon from '../icons/ProfileIcon';
+import ProfileIcon from './ProfileIcon';
+import ShopIcon from './ShopIcon';
 import CartIcon from './CartIcon';
 
 const navBarStyle = {
@@ -30,6 +31,7 @@ class NavBar extends Component {
         <Search />
         <div style={iconsStyle}>
           <FavoriteIcon />
+          <ShopIcon />
           <ProfileIcon />
           <CartIcon />
         </div>

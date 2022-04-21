@@ -5,8 +5,12 @@ import Button from 'react-bootstrap/Button';
 import {
   HeartFill, Heart, ArrowRight
 } from 'react-bootstrap-icons';
-import Header from './nav/Header';
 import { connect } from 'react-redux';
+import Header from './nav/Header';
+import {
+  addItemToFavorites as addItemToFavoritesAction,
+  removeItemFromFavorites as removeItemFromFavoritesAction,
+} from './store/actions/itemAction';
 
 const searchLandingShoppingItemsHeaderStyle = {
   display: 'flex',
@@ -120,7 +124,11 @@ class SearchLanding extends Component {
   }
 
   render() {
-    const { searchResult: items } = this.props;
+    const {
+      addItemToFavorites,
+      removeItemFromFavorites,
+      searchResult: items
+    } = this.props;
     const {
       errorMessages,
       estimatedArrival,
@@ -142,9 +150,9 @@ class SearchLanding extends Component {
             results, with Ads
           </>
           <div>
-            <input type="range" min="1" max="100" value="50" class="slider" id="myRange" />
+            <input type="range" min="1" max="100" value="50" className="slider" id="myRange" />
           </div>
-          <Form.Check 
+          <Form.Check
             type="switch"
             id="custom-switch"
             label="Include Out of Stock Items"
@@ -165,20 +173,20 @@ class SearchLanding extends Component {
           </Form.Select>
         </div>
         <div style={itemsContainerStyle}>
-            { Object.values(items).map(item => (
-              <div style={itemCardContainerStyle} key={item.name}>
-                <div style={itemCardButtonContainerStyle} onClick={() => this.onItemClick(item.id)} onKeyPress={() => this.onItemClick(item.id)} role="button" tabIndex="-1" />
-                <div style={favoriteItemImgContainerStyle}>
-                  <img style={favoriteItemImgStyle} src={item.src} alt="Logo" />
-                  <div style={pricePillStyle}>{`$${item.price}`}</div>
-                  {
+          { Object.values(items).map(item => (
+            <div style={itemCardContainerStyle} key={item.name}>
+              <div style={itemCardButtonContainerStyle} onClick={() => this.onItemClick(item.id)} onKeyPress={() => this.onItemClick(item.id)} role="button" tabIndex="-1" />
+              <div style={favoriteItemImgContainerStyle}>
+                <img style={favoriteItemImgStyle} src={item.src} alt="Logo" />
+                <div style={pricePillStyle}>{`$${item.price}`}</div>
+                {
                     item.isFavorited
                       ? <HeartFill style={heartIconStyle} onClick={() => removeItemFromFavorites(item.id)} onKeyPress={() => removeItemFromFavorites(item.id)} role="button" tabIndex="-1" /> : <Heart style={heartIconStyle} onClick={() => addItemToFavorites(item.id)} onKeyPress={() => addItemToFavorites(item.id)} role="button" tabIndex="-1" />
                   }
-                </div>
-                <div style={itemCardDescriptionStyle}>{`${item.name}`}</div>
               </div>
-            ))
+              <div style={itemCardDescriptionStyle}>{`${item.name}`}</div>
+            </div>
+          ))
           }
         </div>
       </div>
@@ -187,10 +195,14 @@ class SearchLanding extends Component {
 }
 
 SearchLanding.defaultProps = {
+  addItemToFavorites: PropTypes.func,
+  removeItemFromFavorites: PropTypes.func,
   searchResult: PropTypes.array,
 };
 
 SearchLanding.propTypes = {
+  addItemToFavorites: PropTypes.func,
+  removeItemFromFavorites: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   searchResult: PropTypes.array,
 };
@@ -200,6 +212,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  addItemToFavorites: itemID => dispatch(addItemToFavoritesAction(itemID)),
+  removeItemFromFavorites: itemID => dispatch(removeItemFromFavoritesAction(itemID)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchLanding);

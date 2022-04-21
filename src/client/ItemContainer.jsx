@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AvailabileIcon from './icons/AvailableIcon';
+import AvailabileIcon from './AvailableIcon';
 
 const createFormControlStyle = {
   background: '#f7f7f7 none repeat scroll 0 0',

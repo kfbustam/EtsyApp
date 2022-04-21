@@ -13,7 +13,7 @@ if (window != null) {
 }
 
 const reducer = (state = initialState, action) => {
-  const { showUserSettingsModal, type } = action;
+  const { showUserSettingsModal, type, pageView } = action;
   switch (type) {
     case TOGGLE_USER_SETTINGS_MODAL:
       return {

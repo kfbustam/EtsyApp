@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import { connect } from 'react-redux';
 import {
   removeItemFromCart as removeItemFromCartAction,
+  updateCartItem as updateCartItemAction
 } from './store/actions/cartAction';
 
 const errorMessageStyle = {
@@ -13,11 +14,6 @@ const errorMessageStyle = {
 const cartItemCardStyle = {
   display: 'flex',
   flexDirection: 'column',
-};
-
-const cartItemCardHeaderStyle = {
-  display: 'flex',
-  flexDirection: 'row',
 };
 
 const cartItemCardBodyStyle = {
@@ -51,7 +47,16 @@ class CartItem extends Component {
     super(props);
     this.state = {
       errorMessages: [],
+      isGift: false,
+      isQuantityInvalid: false
     };
+  }
+
+  onIsGiftClick = () => {
+    const { isGift } = this.state;
+    this.setState({
+      isGift: !isGift,
+    });
   }
 
   onSaveForLaterClick = () => {
@@ -67,19 +72,35 @@ class CartItem extends Component {
 
   }
 
-  debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
-  }
+  onGiftNoteInputChange = (e) => {
+    const { updateCartItem, item } = this.props;
+    const oldItem = item;
+    oldItem.giftNote = e.target.value;
+    updateCartItem(oldItem);
+  };
 
   onNoteInputChange = (e) => {
-    const { changeCartItemNote, item } = this.props;
-    this.debounce(() => {
-      changeCartItemNote(item.id, e.target.value);
-    }, 3000);
+    const { updateCartItem, item } = this.props;
+    const oldItem = item;
+    oldItem.description = e.target.value;
+    updateCartItem(oldItem);
+  };
+
+  quantityChange = (e) => {
+    if (!Number(e.target.value)) {
+      this.setState({
+        isQuantityInvalid: true
+      });
+      return;
+    }
+
+    const { updateCartItem, item } = this.props;
+    const oldItem = item;
+    oldItem.quantity = e.target.value;
+    updateCartItem(oldItem);
+    this.setState({
+      isQuantityInvalid: false
+    });
   };
 
   render() {
@@ -102,9 +123,12 @@ class CartItem extends Component {
       saleCount,
       sizes,
       stockCount,
+      quantity
     } = item;
     const {
-      errorMessages
+      errorMessages,
+      isGift,
+      isQuantityInvalid
     } = this.state;
 
     return (
@@ -122,6 +146,7 @@ class CartItem extends Component {
               <img src={src} alt="itemImg" />
               <div style={cartItemCardBodyDescriptionStyle}>
                 <>{description}</>
+                <Form.Control type="quantity" placeholder="Quantity" defaultValue={quantity} onChange={this.quantityChange} isInvalid={isQuantityInvalid} />
                 <div style={cartItemCardBodyButtonsStyle}>
                   <button type="submit" className="btn btn-primary" onClick={this.onSaveForLaterClick}>Save for later</button>
                   <button type="submit" className="btn btn-primary" onClick={this.onRemoveClick}>Remove</button>
@@ -135,7 +160,14 @@ class CartItem extends Component {
           </div>
           <div style={cartItemCardCouponCodeLinkStyle}>
             <button type="submit" className="btn btn-primary" onClick={this.onApplyShopCouponCodesClick}>Apply shop coupon codes</button>
+            <Form.Check
+              type="checkbox"
+              id="isGift"
+              label="Pack as a Gift?"
+              onClick={this.onIsGiftClick}
+            />
           </div>
+          {isGift && <input className="form-control" type="text" placeholder="Add a note with the gift" aria-label="Gift Note" onChange={this.onGiftNoteInputChange} style={noteInputStyle} />}
           <input className="form-control" type="text" placeholder="Add a note to seller" aria-label="Note" onChange={this.onNoteInputChange} style={noteInputStyle} />
         </div>
       </>
@@ -145,13 +177,15 @@ class CartItem extends Component {
 
 CartItem.defaultProps = {
   item: PropTypes.object,
-  removeItemFromCart: PropTypes.func
+  removeItemFromCart: PropTypes.func,
+  updateCartItem: PropTypes.func
 };
 
 CartItem.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   item: PropTypes.object,
-  removeItemFromCart: PropTypes.func
+  removeItemFromCart: PropTypes.func,
+  updateCartItem: PropTypes.func
 };
 
 const mapStateToProps = state => ({
@@ -160,7 +194,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   removeItemFromCart: itemID => dispatch(removeItemFromCartAction(itemID)),
-
+  updateCartItem: updatedItem => dispatch(updateCartItemAction(updatedItem)),
 });
 
 

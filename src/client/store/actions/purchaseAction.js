@@ -4,12 +4,11 @@ import {
 
 const URL = 'http://localhost:8080';
 
-const getOptions = data => ({
+const getOptions = () => ({
   headers: {
     'Content-Type': 'application/json'
   },
   method: 'GET',
-  body: JSON.stringify(data)
 });
 
 const postOptions = data => ({

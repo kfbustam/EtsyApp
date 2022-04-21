@@ -1,15 +1,14 @@
 import {
-  ADD_ITEM_TO_FAVORITES, REMOVE_CART_ITEM, GET_SHOPPING_ITEMS_IN_CART, SET_SHOPPING_ITEM_OVERVIEW
+  ADD_ITEM_TO_FAVORITES, PAGES, SET_SHOPPING_ITEM_OVERVIEW
 } from './actionTypes';
 
 const URL = 'http://localhost:8080';
 
-const getOptions = data => ({
+const getOptions = () => ({
   headers: {
     'Content-Type': 'application/json'
   },
   method: 'GET',
-  body: JSON.stringify(data)
 });
 
 const postOptions = data => ({
@@ -55,7 +54,7 @@ export const hydrateCartItems = () => (dispatch) => {
         return res.json().then((responseData) => {
           const { cartItems } = responseData;
           dispatch({
-            type: GET_SHOPPING_ITEMS_IN_CART,
+            type: PAGES.CART,
             cartItems: Object.values(cartItems)
           });
           return responseData;
@@ -67,6 +66,13 @@ export const hydrateCartItems = () => (dispatch) => {
     });
 };
 
+export const updateCartItem = item => (dispatch) => {
+  dispatch({
+    type: PAGES.CART,
+    updatedCartItem: item
+  });
+};
+
 export const removeItemFromCart = itemID => (dispatch) => {
   fetch(`${URL}/removeCartItem`, postOptions({ itemID }))
     .then((res) => {
@@ -74,7 +80,7 @@ export const removeItemFromCart = itemID => (dispatch) => {
         return res.json().then((responseData) => {
           const { cartItems } = responseData;
           dispatch({
-            type: REMOVE_CART_ITEM,
+            type: PAGES.CART,
             cartItems
           });
           return responseData;

@@ -1,15 +1,15 @@
 import {
-  ADD_ITEM_TO_FAVORITES, REMOVE_ITEM_FROM_FAVORITES, GET_SHOPPING_ITEMS_POSTED_BY_USERS, SET_SHOPPING_ITEM_OVERVIEW
+  SET_SHOPPING_ITEM_OVERVIEW,
+  PAGES,
 } from './actionTypes';
 
 const URL = 'http://localhost:8080';
 
-const getOptions = data => ({
+const getOptions = () => ({
   headers: {
     'Content-Type': 'application/json'
   },
   method: 'GET',
-  body: JSON.stringify(data)
 });
 
 const postOptions = data => ({
@@ -21,23 +21,22 @@ const postOptions = data => ({
 });
 
 
-export const viewShoppingItemOverview = itemID => (dispatch) => {
+export const updateShopInfo = itemID => (dispatch) => {
   dispatch({
     type: SET_SHOPPING_ITEM_OVERVIEW,
     itemID
   });
 };
 
-export const addItemToFavorites = itemID => (dispatch) => {
-  fetch(`${URL}/favoriteItem`, postOptions({ itemID }))
+export const hydrateShopInfo = () => (dispatch) => {
+  fetch(`${URL}/shops`, getOptions())
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
-          const { item, items } = responseData;
+          const { shops } = responseData;
           dispatch({
-            type: ADD_ITEM_TO_FAVORITES,
-            itemID: item.id,
-            items
+            myShopInfo: Object.values(shops),
+            type: PAGES.SHOP_HOME
           });
           return responseData;
         });
@@ -48,15 +47,15 @@ export const addItemToFavorites = itemID => (dispatch) => {
     });
 };
 
-export const hydrateShoppingItems = () => (dispatch) => {
-  fetch(`${URL}/items`, getOptions())
+export const checkShopName = shopName => (dispatch) => {
+  fetch(`${URL}/checkShopName`, postOptions({ shopName }))
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
-          const { items } = responseData;
+          const { isShopNameAvailable } = responseData;
           dispatch({
-            type: GET_SHOPPING_ITEMS_POSTED_BY_USERS,
-            items
+            isShopNameAvailable,
+            type: PAGES.SHOP_HOME,
           });
           return responseData;
         });
@@ -67,16 +66,23 @@ export const hydrateShoppingItems = () => (dispatch) => {
     });
 };
 
-export const removeItemFromFavorites = itemID => (dispatch) => {
-  fetch(`${URL}/unFavoriteItem`, postOptions({ itemID }))
+export const clearShopName = () => (dispatch) => {
+  dispatch({
+    isShopNameAvailable: null,
+    type: PAGES.SHOP_HOME,
+  });
+};
+
+
+export const createShop = shopName => (dispatch) => {
+  fetch(`${URL}/createShop`, postOptions({ shopName }))
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
-          const { item, items } = responseData;
+          const { myShopInfo } = responseData;
           dispatch({
-            type: REMOVE_ITEM_FROM_FAVORITES,
-            itemID: item.id,
-            items
+            myShopInfo: Object.values(myShopInfo),
+            type: PAGES.SHOP_HOME,
           });
           return responseData;
         });

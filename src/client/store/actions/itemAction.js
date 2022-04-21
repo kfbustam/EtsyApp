@@ -18,7 +18,7 @@ const getOptions = data => ({
   body: JSON.stringify(data)
 });
 
-const postOptions = data => ({
+cons => ({
   headers: {
     'Content-Type': 'application/json'
   },
