@@ -1,16 +1,11 @@
+import ApolloClient from 'apollo-boost';
+import gql from 'graphql-tag';
 import {
   SET_SHOPPING_ITEM_OVERVIEW,
   PAGES,
 } from './actionTypes';
 
 const URL = 'http://localhost:8080';
-
-const getOptions = () => ({
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  method: 'GET',
-});
 
 const postOptions = data => ({
   headers: {
@@ -29,22 +24,39 @@ export const updateShopInfo = itemID => (dispatch) => {
 };
 
 export const hydrateShopInfo = () => (dispatch) => {
-  fetch(`${URL}/shops`, getOptions())
-    .then((res) => {
-      if (res.ok) {
-        return res.json().then((responseData) => {
-          const { shops } = responseData;
-          dispatch({
-            myShopInfo: Object.values(shops),
-            type: PAGES.SHOP_HOME
-          });
-          return responseData;
-        });
+  const client = new ApolloClient({
+    uri: `${URL}/graphql`,
+  });
+  client.query({
+    query: gql`
+      query Query {
+        shops {
+          admirerCount,
+          dateJoined,
+          name,
+          saleCount,
+          shopInfoSrc: src,
+          shopItems: items {
+            cost: price,
+            itemName: name,
+          },
+          ownerInfo {
+            username,
+            region,
+            currency,
+            language
+          }
+        }
       }
-      console.log('Error occurred:');
-      console.log(res);
-      return { errorMessages: { REQUEST_ERROR: res.statusText } };
-    });
+    `,
+  })
+    .then((response) => {
+      dispatch({
+        myShopInfo: response.data.shops,
+        type: PAGES.SHOP_HOME
+      });
+    })
+    .catch(error => console.log(error));
 };
 
 export const checkShopName = shopName => (dispatch) => {

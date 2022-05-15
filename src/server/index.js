@@ -7,10 +7,16 @@ const app = express();
 const cors = require('cors');
 // require express middleware body-parser
 const bodyParser = require('body-parser');
+// use body parser to parse JSON and urlencoded request bodies
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 // require express session
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const { graphqlHTTP } = require('express-graphql');
+const gql = require('graphql-tag');
+const { buildASTSchema } = require('graphql');
 require('dotenv').config();
 
 const sqlite3 = require('sqlite3').verbose();
@@ -26,9 +32,6 @@ app.set('views', './src/client');
 app.use(express.static('dist'));
 app.get('/api/getUsername', (req, res) => res.send({ username: os.userInfo().username }));
 
-// use body parser to parse JSON and urlencoded request bodies
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 // use cookie parser to parse request headers
 app.use(cookieParser());
 // use session to store user data between HTTP requests
@@ -338,6 +341,67 @@ let isShopNameAvailable = null;
 
 let errorMessages = {};
 let messages = {};
+
+const schema = buildASTSchema(gql`
+  type Query {
+    shops: [Shop]
+  }
+
+  type Shop {
+    id: ID
+    admirerCount: Int,
+    dateJoined: String,
+    name: String,
+    saleCount: Int,
+    src: String,
+    items: [Item],
+    ownerInfo: User
+  }
+
+  type User {
+    id: ID,
+    username: String,
+    password: String,
+    region: String,
+    currency: String,
+    language: String,
+  }
+
+  type Item {
+    id: ID,
+    src: String,
+    isFavorited: Boolean,
+    name: String,
+    price: Float,
+    arrivesByDate: String,
+    doesItemShipFreeInUsersCountry: Boolean,
+    peopleWithItemInCartCount: Int,
+    description: String,
+    images: [Image],
+    isEtsysPick: Boolean,
+    isStarSeller: Boolean,
+    saleCount: Int,
+    sizes: [String],
+    stockCount: Int,   
+  }
+
+  type Image {
+    src: String
+  }
+`);
+const rootResolvers = {
+  shops: () => {
+    // query shops here
+    console.log('query');
+    return shops;
+  }
+};
+
+app.use('/graphql', graphqlHTTP({
+  schema,
+  rootValue: rootResolvers,
+  graphiql: true,
+}));
 
 app.post('/search', (req, res) => {
   if (
