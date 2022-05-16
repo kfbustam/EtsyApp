@@ -1,8 +1,13 @@
 import jwt from 'jsonwebtoken';
-import { LOGIN_SUCCESSFUL, LOGOUT_USER, UPDATE_USER_INFO } from './actionTypes';
+import ApolloClient from 'apollo-boost';
+import gql from 'graphql-tag';
+import {
+  LOGIN_SUCCESSFUL, LOGOUT_USER, PAGES
+} from './actionTypes';
+
 
 const URL = 'http://localhost:8080';
-const options = data => ({
+const postOptions = data => ({
   headers: {
     'Content-Type': 'application/json'
   },
@@ -10,13 +15,13 @@ const options = data => ({
   body: JSON.stringify(data)
 });
 
-export const updateUserInfo = userInfo => dispatch => fetch(`${URL}/updateUserInfo`, options(userInfo))
+export const updateUserInfo = userInfo => dispatch => fetch(`${URL}/updateUserInfo`, postOptions({ userInfo, jwtKey: localStorage.getItem('jwtToken') }))
   .then((res) => {
     if (res.ok) {
       return res.json().then((responseData) => {
         const { userInfo: updatedUserInfo } = responseData;
         dispatch({
-          type: UPDATE_USER_INFO,
+          type: PAGES.PROFILE,
           updatedUserInfo
         });
         return responseData;
@@ -27,10 +32,38 @@ export const updateUserInfo = userInfo => dispatch => fetch(`${URL}/updateUserIn
     return { errorMessages: { REQUEST_ERROR: res.statusText } };
   });
 
-export const userSignupRequest = userSignupDetails => () => fetch(`${URL}/signup`, options(userSignupDetails));
+export const getUserInfo = () => (dispatch) => {
+  const client = new ApolloClient({
+    uri: `${URL}/graphql`,
+  });
+  client.query({
+    query: gql`
+        query Query($jwtString: String) {
+          user(jwtString: $jwtString) {
+            id,
+            username,
+            password,
+            region,
+            currency,
+            language,
+          }
+        }
+      `,
+    variables: { jwtString: localStorage.getItem('jwtToken') }
+  }).then((response) => {
+    dispatch({
+      type: PAGES.PROFILE,
+      updatedUserInfo: response.data.user
+    });
+    return response;
+  })
+    .catch(error => console.log(error));
+};
+
+export const userSignupRequest = userSignupDetails => () => fetch(`${URL}/signup`, postOptions(userSignupDetails));
 
 export const userLoginRequest = userLoginDetails => (
-  dispatch => fetch(`${URL}/login`, options(userLoginDetails))
+  dispatch => fetch(`${URL}/login`, postOptions(userLoginDetails))
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {

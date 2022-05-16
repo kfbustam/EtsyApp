@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { LOGIN_SUCCESSFUL, LOGOUT_USER, UPDATE_USER_INFO } from '../actions/actionTypes';
+import { LOGIN_SUCCESSFUL, LOGOUT_USER } from '../actions/actionTypes';
 
 const validCredentials = () => {
   if (typeof window === 'undefined') {
@@ -24,9 +24,6 @@ if (window != null) {
     isAuthenticated,
     authenticatedUsername: isAuthenticated && jwtDecoded != null ? jwtDecoded.username : '',
     user: {
-      region: 'United States',
-      currency: 'USD',
-      language: 'English',
       username: isAuthenticated && jwtDecoded != null ? jwtDecoded.username : '',
     }
   };
@@ -55,17 +52,11 @@ const reducer = (state = initialState, action) => {
         authenticatedUsername: '',
       };
     }
-    case UPDATE_USER_INFO: {
+    default:
       return {
         ...state,
-        user: {
-          ...user,
-          ...updatedUserInfo
-        }
+        user: updatedUserInfo != null ? updatedUserInfo : user
       };
-    }
-    default:
-      return state;
   }
 };
 

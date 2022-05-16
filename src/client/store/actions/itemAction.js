@@ -2,11 +2,11 @@ import {
   ADD_ITEM_TO_FAVORITES,
   REMOVE_ITEM_FROM_FAVORITES,
   GET_SHOPPING_ITEMS_POSTED_BY_USERS,
+  PAGES,
   SET_SHOPPING_ITEM_OVERVIEW,
   SEARCH_ITEMS,
   UPDATE_SEARCH_INPUT
 } from './actionTypes';
-import { PAGES } from './actionTypes';
 
 const URL = 'http://localhost:8080';
 
@@ -18,7 +18,7 @@ const getOptions = data => ({
   body: JSON.stringify(data)
 });
 
-cons => ({
+const postOptions = data => ({
   headers: {
     'Content-Type': 'application/json'
   },

@@ -52,10 +52,6 @@ class FavoriteItem extends Component {
     const {
       errorMessages
     } = this.state;
-    const onBookAuthorNameInputChange = (e) => {
-      this.setState({ bookAuthor: e.target.value });
-    };
-
     return (
       <div className="container">
         {

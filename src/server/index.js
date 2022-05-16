@@ -57,11 +57,16 @@ const JWT_SECRET_KEY = 'SECRETKEYJWTLOGIN';
 const Users = {
   1: {
     id: 1,
+    about: 'about me',
+    birthday: '',
+    city: 'Los Angeles',
+    gender: 'Male',
     username: 'admin',
     password: 'admin',
     region: 'United States',
     currency: 'USD',
     language: 'English',
+    src: '',
   },
 };
 
@@ -344,7 +349,8 @@ let messages = {};
 
 const schema = buildASTSchema(gql`
   type Query {
-    shops: [Shop]
+    shops: [Shop],
+    user(jwtString: String): User
   }
 
   type Shop {
@@ -360,6 +366,10 @@ const schema = buildASTSchema(gql`
 
   type User {
     id: ID,
+    about: String,
+    birthday: String,
+    city: String,
+    gender: String,
     username: String,
     password: String,
     region: String,
@@ -390,18 +400,27 @@ const schema = buildASTSchema(gql`
   }
 `);
 const rootResolvers = {
-  shops: () => {
+  shops: () => shops,
+  user: (jwtString) => {
     // query shops here
-    console.log('query');
-    return shops;
-  }
+    const userObj = jwt.decode(jwtString.jwtString);
+    const decodedUserID = userObj.id;
+    return Users[decodedUserID];
+  },
+  // Users[jwt.decode(userID)],
 };
 
-app.use('/graphql', graphqlHTTP({
-  schema,
-  rootValue: rootResolvers,
-  graphiql: true,
-}));
+app.use('/graphql',
+  graphqlHTTP(
+    req => ({
+      schema,
+      rootValue: rootResolvers,
+      graphiql: true,
+      context: {
+        auth: req.auth,
+      }
+    })
+  ));
 
 app.post('/search', (req, res) => {
   if (
@@ -605,18 +624,19 @@ app.post('/updateUserInfo', (req, res) => {
   if (
     req.body
   ) {
-    const { userID, userInfo } = req.body;
-    if (Users[userID]) {
-      Users[userID] = {
-        ...Users[userID],
+    const { jwtKey, userInfo } = req.body;
+    const userObj = jwt.decode(jwtKey);
+    if (Users[userObj.id] != null) {
+      Users[userObj.id] = {
+        ...Users[userObj.id],
         ...userInfo
       };
-      res.send({ userInfo }, 200);
+      console.log(userInfo);
+      console.log(Users[userObj.id]);
+      res.send({ userInfo: Users[userObj.id] }, 200);
     } else {
       errorMessages = {};
-      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `User with username: "${
-        userInfo.username
-      }" has issues`;
+      errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = 'User has issues';
       res.send({ errorMessages }, 200);
     }
   }

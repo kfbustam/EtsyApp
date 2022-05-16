@@ -34,34 +34,9 @@ class FavoriteItems extends Component {
 
 
   render() {
-    const { onTabClicked, onMessageUpdated } = this.props;
     const {
-      bookAuthor,
-      bookID,
-      bookTitle,
       errorMessages
     } = this.state;
-    const onBookAuthorNameInputChange = (e) => {
-      this.setState({ bookAuthor: e.target.value });
-    };
-    const onBookAuthorTitleInputChange = (e) => {
-      this.setState({ bookTitle: e.target.value });
-    };
-    const onBookIDInputChange = (e) => {
-      this.setState({ bookID: e.target.value });
-    };
-    const onSubmit = () => {
-      createBookRequest({ bookAuthor, bookID, bookTitle }).then((res) => {
-        res.json().then((resp) => {
-          if (res.ok) {
-            onMessageUpdated(resp.messages);
-            onTabClicked('home');
-          } else {
-            this.setState({ errorMessages: resp.errorMessages });
-          }
-        });
-      });
-    };
     const favoriteItems = [];
     return (
       <>
