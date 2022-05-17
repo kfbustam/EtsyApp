@@ -25,13 +25,14 @@ const iconsStyle = {
 // eslint-disable-next-line react/prefer-stateless-function
 class NavBar extends Component {
   render() {
+    const { isAuthenticated } = this.props;
     return (
       <div style={navBarStyle}>
         <EtsyLogo />
         <Search />
         <div style={iconsStyle}>
-          <FavoriteIcon />
-          <ShopIcon />
+          {isAuthenticated ? <FavoriteIcon /> : <></>}
+          {isAuthenticated ? <ShopIcon /> : <></>}
           <ProfileIcon />
           <CartIcon />
         </div>
@@ -48,10 +49,12 @@ const mapDispatchToProps = dispatch => ({
 });
 
 NavBar.defaultProps = {
+  isAuthenticated: PropTypes.bool,
   userLogoutRequest: PropTypes.func
 };
 
 NavBar.propTypes = {
+  isAuthenticated: PropTypes.bool,
   userLogoutRequest: PropTypes.func
 };
 

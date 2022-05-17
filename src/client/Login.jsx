@@ -30,7 +30,6 @@ const mainDivStyle = {
   background: '#ffffff none repeat scroll 0 0',
   borderRadius: 2,
   margin: '10px auto 30px',
-  maxWidth: '38%',
   padding: '50px 70px 70px 71px',
   border: '2px solid black',
 };
@@ -107,65 +106,57 @@ class Login extends Component {
 
     return (
       <SSRProvider>
-        <div className="container">
-          <link
-            rel="stylesheet"
-            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          />
-          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" />
-          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
-          <div style={loginFormStyle}>
-            <div style={mainDivStyle}>
-              <h2 style={panelHeaderStyle}>Admin Login</h2>
-              <p style={panelParagraphStyle}>
-                Please enter your username and password
-              </p>
-              {isAuthenticated && ''}
-              {errorMessages != null
-                  && Object.keys(errorMessages).map(errorMessageKey => (
-                    <p key={errorMessageKey} style={errorMessageStyle}>
-                      {errorMessages[errorMessageKey]}
-                    </p>
-                  ))}
-              {messages != null
-                  && Object.keys(messages).map(messageKey => (
-                    <p key={messageKey} style={successMessageStyle}>
-                      {messages[messageKey]}
-                    </p>
-                  ))}
-              <div style={loginFormGroupStyle}>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  style={loginFormControlStyle}
-                  onChange={onUsernameFieldChange}
-                />
-              </div>
-              <div style={loginFormGroupStyle}>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  style={loginFormControlStyle}
-                  onChange={onPasswordFieldChange}
-                />
-              </div>
-              <button
-                style={loginButtonStyle}
-                type="submit"
-                onClick={onLoginClicked}
-              >
-                Login
-              </button>
-              <button
-                style={signUpButtonStyle}
-                type="submit"
-                onClick={onSignUpButtonClicked}
-              >
-                Sign up
-              </button>
+        <div style={loginFormStyle}>
+          <div style={mainDivStyle}>
+            <h2 style={panelHeaderStyle}>Admin Login</h2>
+            <p style={panelParagraphStyle}>
+              Please enter your username and password
+            </p>
+            {isAuthenticated && ''}
+            {errorMessages != null
+              && Object.keys(errorMessages).map(errorMessageKey => (
+                <p key={errorMessageKey} style={errorMessageStyle}>
+                  {errorMessages[errorMessageKey]}
+                </p>
+              ))}
+            {messages != null
+              && Object.keys(messages).map(messageKey => (
+                <p key={messageKey} style={successMessageStyle}>
+                  {messages[messageKey]}
+                </p>
+              ))}
+            <div style={loginFormGroupStyle}>
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                style={loginFormControlStyle}
+                onChange={onUsernameFieldChange}
+              />
             </div>
+            <div style={loginFormGroupStyle}>
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                style={loginFormControlStyle}
+                onChange={onPasswordFieldChange}
+              />
+            </div>
+            <button
+              style={loginButtonStyle}
+              type="submit"
+              onClick={onLoginClicked}
+            >
+              Login
+            </button>
+            <button
+              style={signUpButtonStyle}
+              type="submit"
+              onClick={onSignUpButtonClicked}
+            >
+              Sign up
+            </button>
           </div>
         </div>
       </SSRProvider>

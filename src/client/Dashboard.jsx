@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import SSRProvider from 'react-bootstrap/SSRProvider';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Modal from 'react-bootstrap/Modal';
 import UserSettingsModal from './UserSettingsModal';
 import Home from './Home';
 import Header from './nav/Header';
@@ -15,6 +16,9 @@ import PurchaseHistory from './PurchaseHistory';
 import ShoppingItemOverview from './ShoppingItemOverview';
 import SignUp from './SignUp';
 import SearchLanding from './SearchLanding';
+import { PAGES } from './store/actions/actionTypes';
+import { changePageView as changePageViewAction } from './store/actions/pageAction';
+
 
 class Dashboard extends Component {
   constructor(props) {
@@ -25,27 +29,17 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { pageView } = this.props;
+    const { changePageView, pageView } = this.props;
     const { isOnSignUpPage, messages } = this.state;
     const onMessageUpdated = (newMessages) => {
       this.setState({ messages: newMessages });
     };
     const onSignUpButtonClicked = (isOnSignUpPageFlag) => {
+      changePageView(PAGES.SIGN_UP);
       this.setState({ isOnSignUpPage: isOnSignUpPageFlag });
     };
-    const { isAuthenticated } = this.props;
-    const authComponent = isOnSignUpPage ? (
-      <SignUp
-        onMessageUpdated={onMessageUpdated}
-        onSignUpButtonClicked={onSignUpButtonClicked}
-      />
-    ) : (
-      <Login
-        messages={messages}
-        onSignUpButtonClicked={onSignUpButtonClicked}
-      />
-    );
     let defaultComponent;
+
     switch (pageView) {
       case 'SEARCH_LANDING':
         defaultComponent = (
@@ -93,8 +87,29 @@ class Dashboard extends Component {
     }
     return (
       <SSRProvider>
-        {isAuthenticated && <Header />}
-        {isAuthenticated ? defaultComponent : authComponent}
+        <Header />
+        <Modal show={pageView === 'SIGN_UP' || pageView === 'LOGIN'}>
+          <Modal.Header closeButton onHide={() => changePageView(PAGES.HOME)}>
+            <Modal.Title>Sign in</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {
+              pageView === 'SIGN_UP'
+                ? (
+                  <SignUp
+                    onMessageUpdated={onMessageUpdated}
+                  />
+                )
+                : (
+                  <Login
+                    messages={messages}
+                    onSignUpButtonClicked={onSignUpButtonClicked}
+                  />
+                )
+            }
+          </Modal.Body>
+        </Modal>
+        {defaultComponent}
         <UserSettingsModal />
       </SSRProvider>
     );
@@ -107,14 +122,17 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  changePageView: userLoginDetails => dispatch(changePageViewAction(userLoginDetails))
 });
 
 Dashboard.defaultProps = {
+  changePageView: PropTypes.func,
   isAuthenticated: PropTypes.bool,
   pageView: PropTypes.string,
 };
 
 Dashboard.propTypes = {
+  changePageView: PropTypes.func,
   isAuthenticated: PropTypes.bool,
   pageView: PropTypes.string,
 };
