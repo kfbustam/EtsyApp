@@ -29,6 +29,7 @@
     "graphql": "^15.8.0",
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.6.0",
     "prop-types": "^15.8.1",
     "react": "^16.5.2",
     "react-bootstrap": "^2.2.0",

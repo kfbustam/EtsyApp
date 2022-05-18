@@ -134,21 +134,21 @@ class Home extends Component {
             <div>Recently favorited and viewed items</div>
           </div>
           <div style={itemsContainerStyle}>
-            { Object.values(items).map(item => (
+            {Object.values(items).map(item => (
               <div style={itemCardContainerStyle} key={item.name}>
-                <div style={itemCardButtonContainerStyle} onClick={() => this.onItemClick(item.id)} onKeyPress={() => this.onItemClick(item.id)} role="button" tabIndex="-1" />
+                <div style={itemCardButtonContainerStyle} onClick={() => this.onItemClick(item._id)} onKeyPress={() => this.onItemClick(item._id)} role="button" tabIndex="-1" />
                 <div style={favoriteItemImgContainerStyle}>
                   <img style={favoriteItemImgStyle} src={item.src} alt="Logo" />
                   <div style={pricePillStyle}>{`$${item.price}`}</div>
                   {
                     item.isFavorited
-                      ? <HeartFill style={heartIconStyle} onClick={() => removeItemFromFavorites(item.id)} onKeyPress={() => removeItemFromFavorites(item.id)} role="button" tabIndex="-1" /> : <Heart style={heartIconStyle} onClick={() => addItemToFavorites(item.id)} onKeyPress={() => addItemToFavorites(item.id)} role="button" tabIndex="-1" />
+                      ? <HeartFill style={heartIconStyle} onClick={() => removeItemFromFavorites(item._id)} onKeyPress={() => removeItemFromFavorites(item._id)} role="button" tabIndex="-1" /> : <Heart style={heartIconStyle} onClick={() => addItemToFavorites(item._id)} onKeyPress={() => addItemToFavorites(item._id)} role="button" tabIndex="-1" />
                   }
                 </div>
                 <div style={itemCardDescriptionStyle}>{`${item.name}`}</div>
               </div>
             ))
-          }
+            }
           </div>
         </div>
         <Footer />

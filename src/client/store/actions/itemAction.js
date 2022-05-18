@@ -66,10 +66,10 @@ export const addItemToFavorites = itemID => (dispatch) => {
     .then((res) => {
       if (res.ok) {
         return res.json().then((responseData) => {
-          const { item, items } = responseData;
+          const { items } = responseData;
           dispatch({
             type: ADD_ITEM_TO_FAVORITES,
-            itemID: item.id,
+            itemID,
             items
           });
           return responseData;

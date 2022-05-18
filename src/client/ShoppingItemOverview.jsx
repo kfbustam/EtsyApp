@@ -11,6 +11,9 @@ import {
   addItemToFavorites as addItemToFavoritesAction,
   removeItemFromFavorites as removeItemFromFavoritesAction,
 } from './store/actions/itemAction';
+import {
+  addItemToCart as addItemToCartAction,
+} from './store/actions/cartAction';
 
 const shoppingItemCardStyle = {
   display: 'flex',
@@ -66,6 +69,7 @@ class ShoppingItemOverview extends Component {
 
   render() {
     const {
+      addItemToCart,
       addItemToFavorites,
       removeItemFromFavorites,
       shop,
@@ -81,7 +85,7 @@ class ShoppingItemOverview extends Component {
       doesItemShipFreeInUsersCountry,
       peopleWithItemInCartCount,
       description,
-      id: itemID,
+      _id: itemID,
       images,
       isEtsysPick,
       isStarSeller,
@@ -111,7 +115,7 @@ class ShoppingItemOverview extends Component {
           <div style={shoppingItemImgContainerStyle}>
             <div style={shoppingItemImgStyle}>
               <Carousel>
-                { images != null
+                {images != null
                   && images.map(
                     image => (
                       <Carousel.Item key={image.name}>
@@ -123,7 +127,7 @@ class ShoppingItemOverview extends Component {
                       </Carousel.Item>
                     )
                   )
-              }
+                }
               </Carousel>
             </div>
             {
@@ -161,21 +165,21 @@ class ShoppingItemOverview extends Component {
                   && sizes.map(size => <option value={size} key={size}>{size}</option>)}
               </select>
               <Button variant="primary">Buy it now</Button>
-              <Button variant="secondary">Add to cart</Button>
+              <Button variant="secondary" onClick={addItemToCart}>Add to cart</Button>
               {peopleWithItemInCartCount > 0 && (
-              <div>
-                Other people want this. Over
-                {' '}
-                {peopleWithItemInCartCount}
-                {' '}
-                people have this in their carts right now.
-              </div>
+                <div>
+                  Other people want this. Over
+                  {' '}
+                  {peopleWithItemInCartCount}
+                  {' '}
+                  people have this in their carts right now.
+                </div>
               )}
               {isStarSeller && (
-              <div>
-                Star Seller. This seller has a history of 5-star reviews,
-                shipping on time, and replying quickly when they got any messages.
-              </div>
+                <div>
+                  Star Seller. This seller has a history of 5-star reviews,
+                  shipping on time, and replying quickly when they got any messages.
+                </div>
               )}
               {
                 <div>
@@ -186,14 +190,14 @@ class ShoppingItemOverview extends Component {
                   if you order today.
                 </div>
               }
-              { doesItemShipFreeInUsersCountry
+              {doesItemShipFreeInUsersCountry
                 && (
-                <div>
-                  Hooray! This item ships free to the
-                  {' '}
-                  {countryOfStay}
-                  .
-                </div>
+                  <div>
+                    Hooray! This item ships free to the
+                    {' '}
+                    {countryOfStay}
+                    .
+                  </div>
                 )
               }
             </div>
@@ -207,6 +211,7 @@ class ShoppingItemOverview extends Component {
 
 ShoppingItemOverview.defaultProps = {
   addItemToFavorites: PropTypes.func,
+  addItemToCart: PropTypes.func,
   removeItemFromFavorites: PropTypes.func,
   // eslint-disable-next-line react/default-props-match-prop-types
   shop: PropTypes.object,
@@ -216,6 +221,7 @@ ShoppingItemOverview.defaultProps = {
 
 ShoppingItemOverview.propTypes = {
   addItemToFavorites: PropTypes.func,
+  addItemToCart: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   shop: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
@@ -234,6 +240,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   addItemToFavorites: itemID => dispatch(addItemToFavoritesAction(itemID)),
+  addItemToCart: itemID => dispatch(addItemToCartAction(itemID)),
   removeItemFromFavorites: itemID => dispatch(removeItemFromFavoritesAction(itemID)),
 });
 

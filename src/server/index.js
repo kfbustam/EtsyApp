@@ -19,9 +19,7 @@ const gql = require('graphql-tag');
 const { buildASTSchema } = require('graphql');
 require('dotenv').config();
 
-const sqlite3 = require('sqlite3').verbose();
-
-const db = new sqlite3.Database(':memory:');
+const { MongoClient, ObjectId } = require('mongodb');
 
 app.use(cors());
 // set the view engine to ejs
@@ -43,198 +41,206 @@ app.use(
   })
 );
 
-db.serialize(() => {
-  db.run('CREATE TABLE item (id TEXT, src TEXT)');
-  db.run('CREATE TABLE cart_item (info TEXT)');
-  db.run('CREATE TABLE purchase_history_item (info TEXT)');
-  db.run('CREATE TABLE user (info TEXT)');
-});
-db.close();
-
 const JWT_SECRET_KEY = 'SECRETKEYJWTLOGIN';
 
-// Only user allowed is admin
-const Users = {
-  1: {
-    id: 1,
-    about: 'about me',
-    birthday: '',
-    city: 'Los Angeles',
-    gender: 'Male',
-    username: 'admin',
-    password: 'admin',
-    region: 'United States',
-    currency: 'USD',
-    language: 'English',
-    src: '',
-  },
-};
+// Connection URL
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
 
-const items = {
-  0: {
-    id: 0,
-    src: 'https://placekitten.com/258/205',
-    isFavorited: true,
-    name: 'The kitten 1',
-    price: 120.00,
-    arrivesByDate: Date.now(),
-    doesItemShipFreeInUsersCountry: true,
-    peopleWithItemInCartCount: 256,
-    description: 'This is a kitten',
-    images: [
-      { src: 'https://placekitten.com/400/500' },
-      { src: 'https://placekitten.com/400/500' },
-    ],
-    isEtsysPick: true,
-    isStarSeller: true,
-    saleCount: 46,
-    sizes: [
-      'small',
-      'medium',
-      'large'
-    ],
-    stockCount: 36,
-  },
-  1: {
-    id: 1,
-    src: 'https://placekitten.com/258/205',
-    isFavorited: false,
-    name: 'The kitten 2',
-    price: 120.00,
-    arrivesByDate: Date.now(),
-    doesItemShipFreeInUsersCountry: true,
-    peopleWithItemInCartCount: 256,
-    description: 'This is a kitten',
-    images: [
-      { src: 'https://placekitten.com/400/500' },
-      { src: 'https://placekitten.com/400/500' },
-    ],
-    isEtsysPick: true,
-    isStarSeller: true,
-    saleCount: 46,
-    sizes: [
-      'small',
-      'medium',
-      'large'
-    ],
-    stockCount: 36,
-  },
-  2: {
-    id: 2,
-    src: 'https://placekitten.com/258/205',
-    isFavorited: false,
-    name: 'The kitten 3',
-    price: 120.00,
-    arrivesByDate: Date.now(),
-    doesItemShipFreeInUsersCountry: true,
-    peopleWithItemInCartCount: 256,
-    description: 'This is a kitten',
-    images: [
-      { src: 'https://placekitten.com/400/500' },
-      { src: 'https://placekitten.com/400/500' },
-    ],
-    isEtsysPick: true,
-    isStarSeller: true,
-    saleCount: 46,
-    sizes: [
-      'small',
-      'medium',
-      'large'
-    ],
-    stockCount: 36,
-  },
-  3: {
-    id: 3,
-    src: 'https://placekitten.com/258/205',
-    isFavorited: false,
-    name: 'The kitten 4',
-    price: 120.00,
-    arrivesByDate: Date.now(),
-    doesItemShipFreeInUsersCountry: true,
-    peopleWithItemInCartCount: 256,
-    description: 'This is a kitten',
-    images: [
-      { src: 'https://placekitten.com/400/500' },
-      { src: 'https://placekitten.com/400/500' },
-    ],
-    isEtsysPick: true,
-    isStarSeller: true,
-    saleCount: 46,
-    sizes: [
-      'small',
-      'medium',
-      'large'
-    ],
-    stockCount: 36,
-  },
-  4: {
-    id: 4,
-    src: 'https://placekitten.com/258/205',
-    isFavorited: false,
-    name: 'The kitten 5',
-    price: 120.00,
-    arrivesByDate: Date.now(),
-    doesItemShipFreeInUsersCountry: true,
-    peopleWithItemInCartCount: 256,
-    description: 'This is a kitten',
-    images: [
-      { src: 'https://placekitten.com/400/500' },
-      { src: 'https://placekitten.com/400/500' },
-    ],
-    isEtsysPick: true,
-    isStarSeller: true,
-    saleCount: 46,
-    sizes: [
-      'small',
-      'medium',
-      'large'
-    ],
-    stockCount: 36,
-  },
-  5: {
-    id: 5,
-    src: 'https://placekitten.com/258/205',
-    isFavorited: true,
-    name: 'The kitten 6',
-    price: 120.00,
-    arrivesByDate: Date.now(),
-    doesItemShipFreeInUsersCountry: true,
-    peopleWithItemInCartCount: 256,
-    description: 'This is a kitten',
-    images: [
-      { src: 'https://placekitten.com/400/500' },
-      { src: 'https://placekitten.com/400/500' },
-    ],
-    isEtsysPick: true,
-    isStarSeller: true,
-    saleCount: 46,
-    sizes: [
-      'small',
-      'medium',
-      'large'
-    ],
-    stockCount: 36,
-  },
-};
+// Database Name
+const dbName = 'myProject';
+let users;
+let items;
+let shops;
 
-const shops = [
-  {
-    admirerCount: 2,
-    dateJoined: Date.now(),
-    name: 'The kitten 6',
-    saleCount: 3,
-    src: 'https://placekitten.com/400/500',
-    items: [],
-    ownerInfo: {
-      id: 1,
+async function main() {
+  // Use connect method to connect to the server
+  await client.connect();
+  console.log('Connected successfully to server');
+  const db = client.db(dbName);
+  users = db.collection('users');
+  items = db.collection('items');
+  shops = db.collection('shops');
+
+  // the following code examples can be pasted here...
+
+  return 'done.';
+}
+
+main()
+  .then(async () => {
+    await users.insertMany([{
+      about: 'about me',
+      birthday: '',
+      city: 'Los Angeles',
+      gender: 'Male',
       username: 'admin',
       password: 'admin',
       region: 'United States',
       currency: 'USD',
       language: 'English',
-    }
-  }
-];
+      src: '',
+    }]);
+    await items.insertMany([
+      {
+        src: 'https://placekitten.com/258/205',
+        isFavorited: true,
+        name: 'The kitten 1',
+        price: 120.00,
+        arrivesByDate: Date.now(),
+        doesItemShipFreeInUsersCountry: true,
+        peopleWithItemInCartCount: 256,
+        description: 'This is a kitten',
+        images: [
+          { src: 'https://placekitten.com/400/500' },
+          { src: 'https://placekitten.com/400/500' },
+        ],
+        isEtsysPick: true,
+        isStarSeller: true,
+        saleCount: 46,
+        sizes: [
+          'small',
+          'medium',
+          'large'
+        ],
+        stockCount: 36,
+      },
+      {
+        src: 'https://placekitten.com/258/205',
+        isFavorited: false,
+        name: 'The kitten 2',
+        price: 120.00,
+        arrivesByDate: Date.now(),
+        doesItemShipFreeInUsersCountry: true,
+        peopleWithItemInCartCount: 256,
+        description: 'This is a kitten',
+        images: [
+          { src: 'https://placekitten.com/400/500' },
+          { src: 'https://placekitten.com/400/500' },
+        ],
+        isEtsysPick: true,
+        isStarSeller: true,
+        saleCount: 46,
+        sizes: [
+          'small',
+          'medium',
+          'large'
+        ],
+        stockCount: 36,
+      },
+      {
+        src: 'https://placekitten.com/258/205',
+        isFavorited: false,
+        name: 'The kitten 3',
+        price: 120.00,
+        arrivesByDate: Date.now(),
+        doesItemShipFreeInUsersCountry: true,
+        peopleWithItemInCartCount: 256,
+        description: 'This is a kitten',
+        images: [
+          { src: 'https://placekitten.com/400/500' },
+          { src: 'https://placekitten.com/400/500' },
+        ],
+        isEtsysPick: true,
+        isStarSeller: true,
+        saleCount: 46,
+        sizes: [
+          'small',
+          'medium',
+          'large'
+        ],
+        stockCount: 36,
+      },
+      {
+        src: 'https://placekitten.com/258/205',
+        isFavorited: false,
+        name: 'The kitten 4',
+        price: 120.00,
+        arrivesByDate: Date.now(),
+        doesItemShipFreeInUsersCountry: true,
+        peopleWithItemInCartCount: 256,
+        description: 'This is a kitten',
+        images: [
+          { src: 'https://placekitten.com/400/500' },
+          { src: 'https://placekitten.com/400/500' },
+        ],
+        isEtsysPick: true,
+        isStarSeller: true,
+        saleCount: 46,
+        sizes: [
+          'small',
+          'medium',
+          'large'
+        ],
+        stockCount: 36,
+      },
+      {
+        src: 'https://placekitten.com/258/205',
+        isFavorited: false,
+        name: 'The kitten 5',
+        price: 120.00,
+        arrivesByDate: Date.now(),
+        doesItemShipFreeInUsersCountry: true,
+        peopleWithItemInCartCount: 256,
+        description: 'This is a kitten',
+        images: [
+          { src: 'https://placekitten.com/400/500' },
+          { src: 'https://placekitten.com/400/500' },
+        ],
+        isEtsysPick: true,
+        isStarSeller: true,
+        saleCount: 46,
+        sizes: [
+          'small',
+          'medium',
+          'large'
+        ],
+        stockCount: 36,
+      },
+      {
+        src: 'https://placekitten.com/258/205',
+        isFavorited: true,
+        name: 'The kitten 6',
+        price: 120.00,
+        arrivesByDate: Date.now(),
+        doesItemShipFreeInUsersCountry: true,
+        peopleWithItemInCartCount: 256,
+        description: 'This is a kitten',
+        images: [
+          { src: 'https://placekitten.com/400/500' },
+          { src: 'https://placekitten.com/400/500' },
+        ],
+        isEtsysPick: true,
+        isStarSeller: true,
+        saleCount: 46,
+        sizes: [
+          'small',
+          'medium',
+          'large'
+        ],
+        stockCount: 36,
+      },
+
+    ]);
+    await shops.insertMany([{
+      admirerCount: 2,
+      dateJoined: Date.now(),
+      name: 'The kitten 6',
+      saleCount: 3,
+      src: 'https://placekitten.com/400/500',
+      items: [],
+      ownerInfo: {
+        username: 'admin',
+        password: 'admin',
+        region: 'United States',
+        currency: 'USD',
+        language: 'English',
+      }
+    }]);
+  })
+  .catch(console.error)
+  .finally(() => client.close());
+
 // {
 //   0: {
 //     admirerCount: 2,
@@ -256,9 +262,8 @@ const shops = [
 //   }
 // };
 
-const cartItems = {
-  4: {
-    id: 4,
+const cartItems = [
+  {
     src: 'https://placekitten.com/258/205',
     isFavorited: false,
     name: 'The kitten 5',
@@ -283,8 +288,7 @@ const cartItems = {
     stockCount: 36,
     quantity: 1
   },
-  5: {
-    id: 5,
+  {
     src: 'https://placekitten.com/258/205',
     isFavorited: true,
     name: 'The kitten 6',
@@ -309,11 +313,10 @@ const cartItems = {
     stockCount: 36,
     quantity: 2
   },
-};
+];
 
-const purchaseHistory = {
-  6: {
-    id: 6,
+const purchaseHistory = [
+  {
     createDate: Date.now(),
     src: 'https://placekitten.com/258/205',
     shopSrc: 'https://placekitten.com/10/10',
@@ -340,7 +343,7 @@ const purchaseHistory = {
     stockCount: 36,
     quantity: 5
   },
-};
+];
 
 let isShopNameAvailable = null;
 
@@ -354,7 +357,6 @@ const schema = buildASTSchema(gql`
   }
 
   type Shop {
-    id: ID
     admirerCount: Int,
     dateJoined: String,
     name: String,
@@ -365,7 +367,6 @@ const schema = buildASTSchema(gql`
   }
 
   type User {
-    id: ID,
     about: String,
     birthday: String,
     city: String,
@@ -378,7 +379,6 @@ const schema = buildASTSchema(gql`
   }
 
   type Item {
-    id: ID,
     src: String,
     isFavorited: Boolean,
     name: String,
@@ -401,13 +401,13 @@ const schema = buildASTSchema(gql`
 `);
 const rootResolvers = {
   shops: () => shops,
-  user: (jwtString) => {
+  user: async (jwtString) => {
+    await client.connect();
     // query shops here
     const userObj = jwt.decode(jwtString.jwtString);
-    const decodedUserID = userObj.id;
-    return Users[decodedUserID];
+    const filteredDocs = await users.find({ username: userObj.username }).toArray();
+    return filteredDocs;
   },
-  // Users[jwt.decode(userID)],
 };
 
 app.use('/graphql',
@@ -448,8 +448,10 @@ app.get('/shops', (req, res) => {
 });
 
 
-app.get('/items', (req, res) => {
-  res.send({ items });
+app.get('/items', async (req, res) => {
+  await client.connect();
+  const allItems = await items.find().toArray();
+  res.send({ items: allItems });
 });
 
 app.get('/cartItems', (req, res) => {
@@ -478,7 +480,8 @@ app.get('/purchaseHistory', (req, res) => {
   res.send({ purchaseHistory });
 });
 
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
+  await client.connect();
   messages = {};
   if (req.session.user) {
     res.render('Dashboard', {
@@ -486,7 +489,7 @@ app.post('/signup', (req, res) => {
     });
   } else {
     console.log('Req Body : ', req.body);
-    const userThatMatches = Object.values(Users).filter(user => user.username === req.body.username);
+    const userThatMatches = await users.find({ username: req.body.username });
     if (
       userThatMatches.length === 1
     ) {
@@ -498,13 +501,17 @@ app.post('/signup', (req, res) => {
     } else {
       errorMessages = {};
       messages.VALID_DELETED_BOOK = 'You have successfully signed up!';
-      Object.values(Users).push({ username: req.body.username, password: req.body.password });
+      await users.insertMany([{
+        username: req.body.username,
+        password: req.body.password,
+      }]);
       res.send({ messages, errorMessages });
     }
   }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
+  await client.connect();
   messages = {};
   if (req.session.user) {
     res.render('Dashboard', {
@@ -512,8 +519,7 @@ app.post('/login', (req, res) => {
     });
   } else {
     console.log('Req Body : ', req.body);
-    const userThatMatches = Object.values(Users).filter(user => user.username === req.body.username
-    && user.password === req.body.password);
+    const userThatMatches = await users.find({ username: req.body.username, password: req.body.password });
     if (
       userThatMatches.length === 1
     ) {
@@ -544,15 +550,22 @@ app.post('/logout', (req, res) => {
   res.redirect('/');
 });
 
-app.post('/favoriteItem', (req, res) => {
+app.post('/favoriteItem', async (req, res) => {
+  await client.connect();
   if (
     req.body
     && req.body.itemID != null
   ) {
     const { itemID } = req.body;
-    if (items[itemID]) {
-      items[itemID].isFavorited = true;
-      res.send({ items: Object.values(items), item: items[itemID] }, 200);
+    const item = await items.find({ _id: ObjectId(itemID) }).toArray();
+    if (item.length === 1) {
+      items.updateOne({ _id: ObjectId(itemID) }, { $set: { isFavorited: true } }, (err, res) => {
+        if (err) throw err;
+        console.log('1 object updated');
+      });
+      const updatedItems = await items.find().toArray();
+      const updatedItem = await items.find({ _id: ObjectId(itemID) }).toArray();
+      res.send({ items: updatedItems, item: updatedItem[0] }, 200);
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
@@ -601,15 +614,23 @@ app.post('/removeCartItem', (req, res) => {
   }
 });
 
-app.post('/unFavoriteItem', (req, res) => {
+app.post('/unFavoriteItem', async (req, res) => {
+  await client.connect();
   if (
     req.body
     && req.body.itemID != null
   ) {
     const { itemID } = req.body;
-    if (items[itemID]) {
-      items[itemID].isFavorited = false;
-      res.send({ items: Object.values(items), item: items[itemID] }, 200);
+    const item = await items.find({ _id: ObjectId(itemID) }).toArray();
+    if (item.length === 1) {
+      items.updateOne({ _id: ObjectId(itemID) }, { $set: { isFavorited: false } }, (err, res) => {
+        if (err) throw err;
+        console.log('1 object updated');
+        console.log(res);
+      });
+      const updatedItems = await items.find().toArray();
+      const updatedItem = await items.find({ _id: ObjectId(itemID) }).toArray();
+      res.send({ items: updatedItems, item: updatedItem[0] }, 200);
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
@@ -620,20 +641,34 @@ app.post('/unFavoriteItem', (req, res) => {
   }
 });
 
-app.post('/updateUserInfo', (req, res) => {
+app.post('/updateUserInfo', async (req, res) => {
+  await client.connect();
   if (
     req.body
   ) {
     const { jwtKey, userInfo } = req.body;
     const userObj = jwt.decode(jwtKey);
-    if (Users[userObj.id] != null) {
-      Users[userObj.id] = {
-        ...Users[userObj.id],
-        ...userInfo
-      };
-      console.log(userInfo);
-      console.log(Users[userObj.id]);
-      res.send({ userInfo: Users[userObj.id] }, 200);
+    const userThatMatches = await users.find({ username: userObj.username }).toArray();
+    if (userThatMatches.length === 1) {
+      const updateResult = await users.updateOne(
+        { username: userObj.username },
+        {
+          $set: {
+            about: userInfo.about,
+            birthday: userInfo.birthday,
+            city: userInfo.city,
+            gender: userInfo.gender,
+            username: userInfo.username,
+            password: userInfo.password,
+            region: userInfo.region,
+            currency: userInfo.currency,
+            language: userInfo.language,
+            src: userInfo.src,
+          }
+        }
+      );
+      console.log(updateResult);
+      res.send({ userInfo }, 200);
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = 'User has issues';

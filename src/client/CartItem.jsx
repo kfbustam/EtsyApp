@@ -114,7 +114,7 @@ class CartItem extends Component {
       arrivesByDate,
       doesItemShipFreeInUsersCountry,
       peopleWithItemInCartCount,
-      id: itemID,
+      _id: itemID,
       images,
       isEtsysPick,
       isStarSeller,
