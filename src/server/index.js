@@ -28,7 +28,7 @@ app.engine('jsx', require('express-react-views').createEngine());
 // set the directory of views
 app.set('views', './src/client');
 app.use(express.static('dist'));
-app.get('/api/getUsername', (req, res) => res.send({ username: os.userInfo().username }));
+app.get('/api/getUsername', async (req, res) => res.status(200).send({ username: os.userInfo().username }));
 
 // use cookie parser to parse request headers
 app.use(cookieParser());
@@ -422,7 +422,7 @@ app.use('/graphql',
     })
   ));
 
-app.post('/search', (req, res) => {
+app.post('/search', async (req, res) => {
   if (
     req.body
     && req.body.searchText
@@ -434,31 +434,55 @@ app.post('/search', (req, res) => {
       });
       const searchResults = fuse.search(searchText);
       const searchResult = searchResults.map(searchResult => searchResult.item);
-      res.send({ searchResult });
+      res.status(200).send({ searchResult });
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = 'Invalid search string';
-      res.send({ errorMessages }, 200);
+      res.status(200).send({ errorMessages });
     }
   }
 });
 
-app.get('/shops', (req, res) => {
-  res.send({ shops });
+app.get('/createShopItem', async (req, res) => {
+  const {
+    admirerCount,
+    dateJoined,
+    name,
+    saleCount,
+    src,
+    userID
+  } = req.body;
+  await client.connect();
+  // insert new row into shops table
+  await shops.insertMany([{
+    admirerCount,
+    dateJoined,
+    name,
+    saleCount,
+    src,
+    items: []
+  }]);
+  const newShop = await shops.findOne({});
+  res.status(200).send({ myShopInfo: newShop });
+});
+
+
+app.get('/shops', async (req, res) => {
+  res.status(200).send({ shops });
 });
 
 
 app.get('/items', async (req, res) => {
   await client.connect();
   const allItems = await items.find().toArray();
-  res.send({ items: allItems });
+  res.status(200).send({ items: allItems });
 });
 
-app.get('/cartItems', (req, res) => {
-  res.send({ cartItems });
+app.get('/cartItems', async (req, res) => {
+  res.status(200).send({ cartItems });
 });
 
-app.post('/checkShopName', (req, res) => {
+app.post('/checkShopName', async (req, res) => {
   const { shopName } = req.body;
   const shopsWithShopName = Object.values(shops).filter(shop => shop.name === shopName);
   if (shopsWithShopName.length === 1) {
@@ -466,18 +490,34 @@ app.post('/checkShopName', (req, res) => {
   } else if (shopsWithShopName.length === 0) {
     isShopNameAvailable = true;
   }
-  res.send({ isShopNameAvailable });
+  res.status(200).send({ isShopNameAvailable });
 });
 
-app.post('/createShop', (req, res) => {
+app.post('/createShop', async (req, res) => {
   const { shopName } = req.body;
+  await client.connect();
   // insert new row into shops table
-  shops[shops.length + 1] = { name: shopName };
-  res.send({ myShopInfo: shops });
+  await shops.insertMany([{
+    admirerCount: 2,
+    dateJoined: Date.now(),
+    name: shopName,
+    saleCount: 3,
+    src: 'https://placekitten.com/400/500',
+    items: [],
+    ownerInfo: {
+      username: 'admin',
+      password: 'admin',
+      region: 'United States',
+      currency: 'USD',
+      language: 'English',
+    }
+  }]);
+  const newShop = await shops.findOne({});
+  res.status(200).send({ myShopInfo: newShop });
 });
 
-app.get('/purchaseHistory', (req, res) => {
-  res.send({ purchaseHistory });
+app.get('/purchaseHistory', async (req, res) => {
+  res.status(200).send({ purchaseHistory });
 });
 
 app.post('/signup', async (req, res) => {
@@ -495,7 +535,7 @@ app.post('/signup', async (req, res) => {
     ) {
       console.log('user already exists');
       errorMessages.DUPLICATE_USER = 'Unfortunately, that username is already taken. Please choose another username.';
-      res.send({ errorMessages });
+      res.status(404).send({ errorMessages });
     } else if (userThatMatches.length > 1) {
       console.log('Duplicate users in the DB found!');
     } else {
@@ -505,7 +545,7 @@ app.post('/signup', async (req, res) => {
         username: req.body.username,
         password: req.body.password,
       }]);
-      res.send({ messages, errorMessages });
+      res.status(404).send({ messages, errorMessages });
     }
   }
 });
@@ -519,7 +559,7 @@ app.post('/login', async (req, res) => {
     });
   } else {
     console.log('Req Body : ', req.body);
-    const userThatMatches = await users.find({ username: req.body.username, password: req.body.password });
+    const userThatMatches = await users.find({ username: req.body.username, password: req.body.password }).toArray();
     if (
       userThatMatches.length === 1
     ) {
@@ -532,19 +572,19 @@ app.post('/login', async (req, res) => {
         id: user.id,
         username: user.username
       }, JWT_SECRET_KEY);
-      res.send({ token, errorMessages });
+      res.status(404).send({ token, errorMessages });
     } else if (userThatMatches.length > 1) {
       console.log('Duplicate users in the DB found!');
     } else {
       console.log('user not found');
       messages = {};
       errorMessages.INVALID_LOGIN_CREDENTIALS = 'Invalid login credentials';
-      res.send({ errorMessages });
+      res.status(404).send({ errorMessages });
     }
   }
 });
 
-app.post('/logout', (req, res) => {
+app.post('/logout', async (req, res) => {
   errorMessages = {};
   req.session.user = null;
   res.redirect('/');
@@ -571,12 +611,12 @@ app.post('/favoriteItem', async (req, res) => {
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
         itemID
       }" does not exist`;
-      res.send({ errorMessages }, 200);
+      res.status(200).send({ errorMessages });
     }
   }
 });
 
-app.post('/addCartItem', (req, res) => {
+app.post('/addCartItem', async (req, res) => {
   if (
     req.body
     && req.body.itemID
@@ -590,12 +630,12 @@ app.post('/addCartItem', (req, res) => {
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
         itemID
       }" does not exist`;
-      res.send({ errorMessages }, 200);
+      res.status(200).send({ errorMessages });
     }
   }
 });
 
-app.post('/removeCartItem', (req, res) => {
+app.post('/removeCartItem', async (req, res) => {
   if (
     req.body
     && req.body.itemID
@@ -609,7 +649,7 @@ app.post('/removeCartItem', (req, res) => {
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
         itemID
       }" does not exist`;
-      res.send({ errorMessages }, 200);
+      res.status(200).send({ errorMessages });
     }
   }
 });
@@ -636,7 +676,7 @@ app.post('/unFavoriteItem', async (req, res) => {
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = `Item with ID: "${
         itemID
       }" does not exist`;
-      res.send({ errorMessages }, 200);
+      res.status(200).send({ errorMessages });
     }
   }
 });
@@ -667,12 +707,12 @@ app.post('/updateUserInfo', async (req, res) => {
           }
         }
       );
-      console.log(updateResult);
-      res.send({ userInfo }, 200);
+      const updatedUser = await users.find({ _id: ObjectId(updateResult.upsertedId) }).toArray();
+      res.send({ userInfo: updatedUser[0] }, 200);
     } else {
       errorMessages = {};
       errorMessages.INVALID_BOOK_ID_ALREADY_IN_USE = 'User has issues';
-      res.send({ errorMessages }, 200);
+      res.status(404).send({ errorMessages });
     }
   }
 });

@@ -112,7 +112,7 @@ class ShopEdit extends Component {
     const {
       myShopInfo
     } = this.props;
-
+    console.log(myShopInfo)
     const {
       admirerCount,
       dateJoined,

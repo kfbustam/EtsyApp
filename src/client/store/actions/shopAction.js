@@ -15,6 +15,42 @@ const postOptions = data => ({
   body: JSON.stringify(data)
 });
 
+export const chreateShopItem = shopItemPayload => (dispatch) => {
+  fetch(`${URL}/createShopItem`, postOptions({ shopItemPayload }))
+    .then((res) => {
+      if (res.ok) {
+        return res.json().then((responseData) => {
+          const { items } = responseData;
+          dispatch({
+            items
+          });
+          return responseData;
+        });
+      }
+      console.log('Error occurred:');
+      console.log(res);
+      return { errorMessages: { REQUEST_ERROR: res.statusText } };
+    });
+};
+
+export const removeShopItem = itemID => (dispatch) => {
+  fetch(`${URL}/remove ShopItem`, postOptions({ itemID }))
+    .then((res) => {
+      if (res.ok) {
+        return res.json().then((responseData) => {
+          const { items } = responseData;
+          dispatch({
+            itemID,
+            items
+          });
+          return responseData;
+        });
+      }
+      console.log('Error occurred:');
+      console.log(res);
+      return { errorMessages: { REQUEST_ERROR: res.statusText } };
+    });
+};
 
 export const updateShopInfo = itemID => (dispatch) => {
   dispatch({
@@ -51,6 +87,7 @@ export const hydrateShopInfo = () => (dispatch) => {
     `,
   })
     .then((response) => {
+      console.log(response);
       dispatch({
         myShopInfo: response.data.shops,
         type: PAGES.SHOP_HOME
@@ -93,7 +130,7 @@ export const createShop = shopName => (dispatch) => {
         return res.json().then((responseData) => {
           const { myShopInfo } = responseData;
           dispatch({
-            myShopInfo: Object.values(myShopInfo),
+            myShopInfo,
             type: PAGES.SHOP_HOME,
           });
           return responseData;
